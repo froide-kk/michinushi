@@ -1,6 +1,6 @@
 ---
 name: design-doc-generator
-description: 設計書を作成・更新する際に必ず使用するスキルです。要件定義、ペルソナ定義、ユーザージャーニー、業務フロー、ドメインモデル、システム構成、DB設計（テーブル定義・全体概要）、API仕様、コンポーネント設計、レイアウト設計、画面設計、通知設計、機能一覧、機能設計、認証フロー、バッチ・イベント処理、環境定義、エージェントスキル、テスト計画、テスト仕様のYAML設計書を、JSONスキーマに準拠して生成します。設計書の作成、YAML生成、スキーマバリデーションに関するタスクで呼び出してください。
+description: 設計書を作成・更新する際に必ず使用するスキルです。要件定義、ペルソナ定義、ユーザージャーニー、業務フロー、ドメインモデル、システム構成、DB設計（テーブル定義・全体概要）、API仕様、コンポーネント設計、レイアウト設計、画面設計、通知設計、機能一覧、機能設計、認証フロー、バッチ・イベント処理、環境定義、テスト計画、テスト仕様のYAML設計書を、JSONスキーマに準拠して生成します。設計書の作成、YAML生成、スキーマバリデーションに関するタスクで呼び出してください。
 license: MIT
 compatibility: "Requires ajv-cli for schema validation (npm install -g ajv-cli ajv-formats)"
 metadata:
@@ -9,8 +9,6 @@ metadata:
 ---
 
 # 設計書ジェネレーター
-
-<!-- $schema: docs/schemas/agent_skills_schema.json -->
 
 JSON スキーマに準拠した YAML 設計書を生成する。
 
@@ -42,7 +40,6 @@ JSON スキーマに準拠した YAML 設計書を生成する。
 | 認証フロー | `docs/schemas/auth_flow_schema.json` | 任意 |
 | バッチ・イベント処理 | `docs/schemas/batch_event_process_schema.json` | 任意 |
 | 環境定義 | `docs/schemas/environment_definition_schema.json` | 任意 |
-| エージェントスキル | `docs/schemas/agent_skills_schema.json` | 任意 |
 | テスト計画 | `docs/schemas/test_plan_schema.json` | 必須 |
 | テスト仕様 | `docs/schemas/test_specification_schema.json` | 必須 |
 | 共通メタデータ | `docs/schemas/common_metadata_schema.json` | （全スキーマから参照） |
