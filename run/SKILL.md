@@ -27,7 +27,7 @@ disable-model-invocation: true
 
 `$ARGUMENTS` を確認し、以下のいずれかに分類する:
 
-- **`#33` や `33`** → Issue番号。`gh issue view $ARGUMENTS --repo <owner>/<repo>` で読み取る
+- **`#33` や `33`** → Issue番号。先頭の `#` を除去してから `gh issue view <番号> --repo <owner>/<repo>` で読み取る
 - **自然言語**（例: `アンケートに項目追加`）→ 指示内容を分析する
 - **引数なし** → `/todo` と同等の情報収集を行い、次タスクを提案する
 
@@ -109,6 +109,7 @@ gh api graphql -f query='{ organization(login: "<owner>") { projectV2(number: <p
 2. MUST → 必ず修正、SHOULD → 基本修正、NIT → 判断
 3. 修正をコミット・プッシュ
 4. **必ず各コメントのスレッドに個別リプライする**（一括コメントではなくスレッド単位）
-   - GraphQL でスレッドIDを取得: `pullRequest.reviewThreads`
+   - GraphQL でスレッドIDを取得: `pullRequest.reviewThreads(first: 20)`
+   - **ページネーション必須**: `hasNextPage` が true の場合は `after: endCursor` で次ページも取得する（20件超のスレッドを見逃さないため）
    - 各スレッドに `addPullRequestReviewThreadReply` でリプライ
    - 修正内容とコミットハッシュを含める
