@@ -1,11 +1,9 @@
 ---
-name: design-doc-generator
-description: 設計書を作成・更新する際に必ず使用するスキルです。要件定義、ペルソナ定義、ユーザージャーニー、業務フロー、ドメインモデル、システム構成、DB設計（テーブル定義・全体概要）、API仕様、コンポーネント設計、レイアウト設計、画面設計、通知設計、機能一覧、機能設計、認証フロー、バッチ・イベント処理、環境定義、テスト計画、テスト仕様のYAML設計書を、JSONスキーマに準拠して生成します。設計書の作成、YAML生成、スキーマバリデーションに関するタスクで呼び出してください。
+name: docgen
+description: JSON Schema準拠のYAML設計書を生成・更新する。設計書の作成、スキーマバリデーションに関するタスクで使用。Use when creating or updating design documents, YAML specs, or schema validation.
+user-invocable: false
 license: MIT
 compatibility: "Requires ajv-cli for schema validation (npm install -g ajv-cli ajv-formats)"
-metadata:
-  author: t.kajihara
-  version: "1.0.0"
 ---
 
 # 設計書ジェネレーター
