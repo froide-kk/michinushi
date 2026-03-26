@@ -99,7 +99,7 @@ disable-model-invocation: true
 
 Issue読み取り: `gh issue view <番号> --repo <owner>/<repo>`
 PR作成: `gh pr create --base <baseBranch> --title "<タイトル>" --body "<本文>"`
-Projectステータス取得:
+Projectステータス取得（ownerがorgの場合。userの場合は `organization` を `user` に置換）:
 ```bash
 gh api graphql -f query='{ organization(login: "<owner>") { projectV2(number: <projectNumber>) { items(first: 50) { nodes { fieldValueByName(name: "Status") { ... on ProjectV2ItemFieldSingleSelectValue { name } } content { ... on Issue { number title state } } } } } } }'
 ```

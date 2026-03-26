@@ -34,7 +34,7 @@ architect の実装計画に基づいてコードを書く専門Skill。
 
 ### やらないこと
 - 設計判断（→ architect）
-- テスト作成（→ tester）
+- テスト作成（→ unit-tester / e2e-tester）
 - コードレビュー（→ tech-reviewer / biz-reviewer）
 - UI/UXデザイン判断（→ ui-designer）
 - タスク管理（→ conductor）

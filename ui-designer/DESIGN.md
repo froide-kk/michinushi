@@ -35,7 +35,7 @@ UI/UXの設計・実装を担う専門Skill。
 ### やらないこと
 - Server Action 実装（→ coder）
 - ビジネスロジック（→ coder / architect）
-- テスト作成（→ tester）
+- テスト作成（→ unit-tester / e2e-tester）
 - コードレビュー（→ tech-reviewer / biz-reviewer）
 
 ## 作業フロー

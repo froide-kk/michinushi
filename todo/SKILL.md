@@ -23,6 +23,7 @@ PM視点で状況を評価し、ビジネスオーナーが判断できる形で
 以下の3つを並列で取得する:
 
 ### Projectアイテム（ステータス付き）
+ownerがorgの場合。userの場合は `organization` を `user` に置換。
 ```bash
 gh api graphql -f query='
 {

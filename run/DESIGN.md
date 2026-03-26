@@ -188,7 +188,7 @@ Conductor: リポジトリを確認しています...
 ```
   ⚠ gh auth スコープ不足: project が必要です
   以下のコマンドを実行してください:
-  $ gh auth refresh -h github.com -s read:project,project
+  $ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project.yml の requiredScopes 参照
 ```
 
 ## /run の指示分類
@@ -290,7 +290,7 @@ Conductor:
 
 - **Phase 1**: Conductor + tech-reviewer + biz-reviewer（レビュー対応の自動化が最もROI高い）
 - **Phase 2**: Architect（docgenを拡張）
-- **Phase 3**: Coder + Tester
+- **Phase 3**: coder + unit-tester + e2e-tester
 - **Phase 4**: UI/UX
 
 ## GitHub連携
@@ -307,7 +307,7 @@ Conductor:
 ### セットアップ手順
 ```bash
 # 1. GitHub CLIのスコープ追加（projectが不足している場合）
-gh auth refresh -h github.com -s read:project,project
+gh auth refresh -h github.com -s repo,read:project,project,read:org  # project.yml の requiredScopes 参照
 
 # 2. 確認
 gh auth status  # Token scopes に 'project' が含まれること
@@ -332,7 +332,7 @@ Issue:
     skill: /coder
   - phase: test
     description: "surveys.test.ts にテスト追加"
-    skill: /tester
+    skill: /unit-tester
   - phase: review
     description: "diff確認、Copilotレビュー先回り"
     skill: /tech-reviewer

@@ -32,7 +32,7 @@
 
 ### やらないこと
 - コードの実装（→ coder）
-- テストの作成（→ tester）
+- テストの作成（→ unit-tester / e2e-tester）
 - コードレビュー（→ tech-reviewer / biz-reviewer）
 - タスク管理・進捗管理（→ conductor）
 

@@ -49,7 +49,7 @@ disable-model-invocation: true
 ```
 ⚠ gh auth スコープ不足: project が必要です
 以下のコマンドをターミナルで実行してください:
-$ gh auth refresh -h github.com -s read:project,project
+$ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project.yml の requiredScopes 参照
 ```
 
 **project.yml 未作成**:

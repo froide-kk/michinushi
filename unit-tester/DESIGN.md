@@ -31,7 +31,7 @@
 - テスト失敗時の原因切り分け（テスト側 or 実装側）
 
 ### やらないこと
-- DB結合テスト（→ integration-tester）
+- DB結合テスト（→ e2e-tester）
 - ブラウザ操作テスト（→ e2e-tester）
 - 実装コードの修正（→ coder）
 - テスト戦略の策定（→ architect）
