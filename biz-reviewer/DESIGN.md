@@ -32,7 +32,7 @@
 
 ### やらないこと
 - 型安全・パフォーマンス・セキュリティ実装の検証（→ tech-reviewer）
-- UI/UXデザインの評価（→ ui-reviewer）
+- UI/UXデザインの評価（→ ui-designer）
 - 実装そのもの（→ coder）
 - タスク管理（→ conductor）
 

@@ -72,5 +72,5 @@ $ gh auth refresh -h github.com -s read:project,project
   /init    — このセットアップ（再実行可能）
 
 専門Skill:
-  /design-doc-generator — YAML設計書の生成・更新
+  docgen — YAML設計書の生成・更新（Claude自動呼び出し）
 ```

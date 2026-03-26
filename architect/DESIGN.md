@@ -4,7 +4,7 @@
 
 システム設計・影響範囲分析・技術選定・実装計画を担う専門Skill。
 「何を作るか」を「どう作るか」に変換する役割。
-設計書の生成は design-doc-generator に委譲する。
+設計書の生成は docgen に委譲する。
 
 ## ペルソナ: ソリューションアーキテクト
 
@@ -27,7 +27,7 @@
 - 要件からの影響範囲分析（どのファイル・モデル・APIが影響を受けるか）
 - 技術的アプローチの選択肢提示とトレードオフ分析
 - 実装計画の作成（工程分解・依存関係・順序）
-- 設計書の作成・更新（design-doc-generator に委譲）
+- 設計書の作成・更新（docgen に委譲）
 - 既存設計との整合性チェック
 
 ### やらないこと
@@ -110,7 +110,7 @@ UI:
 
 Phase 1（設計更新）:
   1. survey_submission.yml を更新
-     → /design-doc-generator に委譲
+     → /docgen に委譲
 
 Phase 2（バックエンド）:
   1. medical-records.ts: CounselingData型にfertilityPlanning追加
@@ -129,10 +129,10 @@ Phase 4（テスト）:
 
 ### 4. 設計書生成
 
-設計書の作成・更新が必要な場合は design-doc-generator に委譲:
+設計書の作成・更新が必要な場合は docgen に委譲:
 
 ```
-→ Conductor経由で /design-doc-generator を呼び出し
+→ Conductor経由で /docgen を呼び出し
 → 生成された設計書をレビュー（tech-reviewer / biz-reviewer）
 → 問題なければConductorに報告
 ```
@@ -176,7 +176,7 @@ design-update:
   reviewNeeded: boolean
 ```
 
-## design-doc-generator との関係
+## docgen との関係
 
 ```
 architect（設計判断）
@@ -184,13 +184,13 @@ architect（設計判断）
   ├── 影響範囲分析: 自分で実行
   ├── アプローチ選定: 自分で実行
   ├── 実装計画: 自分で実行
-  └── 設計書生成: design-doc-generator に委譲
+  └── 設計書生成: docgen に委譲
                     │
                     └── YAML生成・スキーマバリデーション
 ```
 
 architect は「何を設計すべきか」を判断し、
-design-doc-generator は「設計書をどう書くか」を実行する。
+docgen は「設計書をどう書くか」を実行する。
 
 ## 検討事項
 

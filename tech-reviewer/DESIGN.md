@@ -32,7 +32,7 @@
 
 ### やらないこと
 - ビジネスロジックの妥当性判断（→ biz-reviewer）
-- UI/UXの評価（→ ui-reviewer）
+- UI/UXの評価（→ ui-designer）
 - 実装そのもの（→ coder）
 - タスク管理・PR作成（→ conductor）
 
