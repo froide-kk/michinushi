@@ -98,12 +98,60 @@ disable-model-invocation: true
 1. ブランチ作成（未作成の場合。baseBranch から分岐）
 2. 変更をコミット
 3. プッシュ
-4. PR作成（`gh pr create --base <baseBranch>`）
-5. GitHub Issue/Projectのステータス更新
+4. PR作成（`gh pr create --base <baseBranch>`、本文に `Closes #<Issue番号>` を含める）
+5. Projectステータスを `In Review` に更新
+
+## Issue・Projectの運用ルール
+
+### ステータスフロー
+```
+Triage → Todo → In Progress → In Review → Done
+```
+
+| ステータス | 意味 | 遷移タイミング |
+|-----------|------|--------------|
+| Triage | ふわっとした要望・検討中 | 要望を受けた時点 |
+| Todo | 具体化済み・着手待ち | 要件が明確になった時点 |
+| In Progress | 作業中 | ブランチ作成・実装開始時 |
+| In Review | PR作成済み・レビュー待ち | PR作成時 |
+| Done | マージ済み | PRマージ時（自動化推奨） |
+
+### Conductorの Issue 管理フロー
+
+**ふわっとした要望が来た場合**:
+1. Issue作成（ラベル: 種別に応じて `bug`/`enhancement`/`infra`）
+2. Projectに追加、ステータス: `Triage`
+3. `/todo` で「🔴 要判断」として表示される
+
+**要件が具体化された場合**:
+1. 既存Issueの本文を更新（調査結果・決定事項を追記）
+2. 必要なら sub-issue を作成して親子関係を構築
+3. ステータスを `Todo` に変更
+
+**作業開始時**:
+1. ステータスを `In Progress` に変更
+2. ブランチ作成
+
+**作業中に派生タスクを発見した場合**:
+1. 別Issueを作成（元Issueへのリンクを本文に含める）
+2. Projectに追加、ステータス: `Todo`（緊急なら `Triage`）
+
+**PR作成時**:
+1. PR本文に `Closes #<Issue番号>` を含める
+2. ステータスを `In Review` に変更
+
+**マージ後**:
+1. `Closes #XX` によりIssueが自動クローズ → Done
+
+### Issue作成の基準
+- **作成する**: ユーザーの要望・バグ報告・改善提案・派生タスク
+- **作成しない**: 単純な質問・一時的な相談（会話で完結するもの）
 
 ## GitHub API リファレンス
 
 Issue読み取り: `gh issue view <番号> --repo <owner>/<repo>`
+Issue作成: `gh issue create --repo <owner>/<repo> --title "<タイトル>" --body "<本文>" --label "<ラベル>"`
+Projectにアイテム追加: `gh project item-add <projectNumber> --owner <owner> --url <Issue URL>`
 PR作成: `gh pr create --base <baseBranch> --title "<タイトル>" --body "<本文>"`
 Projectステータス取得（ownerがorgの場合。userの場合は `organization` を `user` に置換）:
 ```bash

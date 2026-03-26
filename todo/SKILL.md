@@ -73,8 +73,8 @@ gh pr list --repo <owner>/<repo> --state open --limit 200 --json number,title,he
 
 | セクション | 判定条件 |
 |-----------|---------|
-| 🔴 要判断 | Issueコメントに質問・方針未決定の議論 / PRレビューで判断待ち |
-| ▶ 進行中 | Projectステータスが「In Progress」/ 関連PRがオープン |
+| 🔴 要判断 | Projectステータスが「Triage」/ コメントに方針未決定の議論 |
+| ▶ 進行中 | Projectステータスが「In Progress」または「In Review」 |
 | 📥 次の候補 | Projectステータスが「Todo」 |
 | 💤 保留中 | ラベルに「on-hold」/ コメントで明示的に保留 |
 
