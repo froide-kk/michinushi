@@ -70,11 +70,17 @@ disable-model-invocation: true
 
 承認後、各工程を順に実行する。利用可能な専門Skillがあれば委譲する:
 
-| Skill | 委譲する作業 |
-|-------|-------------|
-| docgen | YAML設計書の生成・更新 |
+| Skill | 委譲する作業 | 実装するか |
+|-------|-------------|:---------:|
+| architect | 影響範囲分析・技術選定・実装計画 | 分析のみ |
+| docgen | YAML設計書の生成・更新 | 設計書のみ |
+| coder | ビジネスロジック・Server Action等の実装 | ✓ |
+| tech-reviewer | 技術レビュー・CI失敗分析 | 分析のみ |
+| biz-reviewer | 業務レビュー・要件整合性チェック | 分析のみ |
+| unit-tester | ユニットテスト設計・実装・実行 | テストコード |
+| e2e-tester | E2E/インテグレーションテスト設計・実装 | テストコード |
+| ui-designer | UI/UXデザイン・スタイリング | UIコード |
 
-未実装Skillの担当領域は自分で実行する。
 実行中に `.claude/config/tech.yml` と `.claude/config/biz.yml` のチェック項目を参照する。
 
 ## Step 6: 自己レビュー

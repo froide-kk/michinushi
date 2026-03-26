@@ -277,14 +277,16 @@ Conductor:
 
 | Skill名 | 責務 | 状態 |
 |---------|------|------|
-| docgen | YAML設計書の生成・更新 | ✓ 実装済み |
-| tech-reviewer | 技術レビュー | 設計済み |
-| biz-reviewer | 業務レビュー | 設計済み |
-| architect | 影響範囲分析・技術選定・実装計画 | 設計済み |
-| coder | コード実装・修正 | 設計済み |
-| unit-tester | ユニット/コンポーネントテスト | 設計済み |
-| e2e-tester | E2E/インテグレーションテスト | 設計済み |
-| ui-designer | UIコンポーネント設計・スタイリング | 設計済み |
+| docgen | YAML設計書の生成・更新 | ✓ SKILL.md配置済み |
+| architect | 影響範囲分析・技術選定・実装計画 | ✓ SKILL.md配置済み |
+| coder | ビジネスロジック実装 | ✓ SKILL.md配置済み |
+| tech-reviewer | 技術レビュー・分析 | ✓ SKILL.md配置済み |
+| biz-reviewer | 業務レビュー・分析 | ✓ SKILL.md配置済み |
+| unit-tester | ユニットテスト設計・実装 | ✓ SKILL.md配置済み |
+| e2e-tester | E2Eテスト設計・実装 | ✓ SKILL.md配置済み |
+| ui-designer | UI/UXデザイン・実装 | ✓ SKILL.md配置済み |
+
+※ 全Skill SKILL.md配置済み。運用検証は段階的に実施。
 
 ### 実装フェーズ
 
