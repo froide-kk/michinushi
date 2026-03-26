@@ -311,7 +311,7 @@ gh auth refresh -h github.com -s read:project,project
 
 # 2. 確認
 gh auth status  # Token scopes に 'project' が含まれること
-gh project list --owner froide-kk  # Projectが見えること
+gh project list --owner <owner>  # .claude/config/project.yml の owner を使用
 ```
 
 ### Issue → タスク変換ルール
