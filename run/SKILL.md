@@ -93,10 +93,26 @@ disable-model-invocation: true
 
 問題があれば修正してからコミットする。
 
-## Step 7: 完了処理
+## Step 7: ADR作成（該当する場合）
+
+設計上の分岐点で判断を行った場合、`docs/adr/ADR-XXX.md` を作成する。
+
+**ADRを作成する基準**:
+- 複数の選択肢を検討して1つを選んだ場合
+- ユーザーのフィードバックで方針を変えた場合
+- 将来の変更者が「なぜこうなっているか」を知る必要がある場合
+
+**ADRを作成しない基準**:
+- 単純な実装（選択肢がなかった）
+- バグ修正（原因と修正が自明）
+
+作成したら、関連する設計書の `metadata.relatedDecisions` にADR番号を追加する。
+テンプレート: `docs/adr/TEMPLATE.md`
+
+## Step 8: 完了処理
 
 1. ブランチ作成（未作成の場合。baseBranch から分岐）
-2. 変更をコミット
+2. 変更をコミット（ADRがあれば一緒にコミット）
 3. プッシュ
 4. PR作成（`gh pr create --base <baseBranch>`、本文に `Closes #<Issue番号>` を含める）
 5. Projectステータスを `In Review` に更新
