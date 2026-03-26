@@ -108,4 +108,7 @@ gh api graphql -f query='{ organization(login: "<owner>") { projectV2(number: <p
 1. `gh api repos/<owner>/<repo>/pulls/<PR番号>/comments` でコメント取得
 2. MUST → 必ず修正、SHOULD → 基本修正、NIT → 判断
 3. 修正をコミット・プッシュ
-4. GraphQL `addPullRequestReviewThreadReply` で各コメントにリプライ
+4. **必ず各コメントのスレッドに個別リプライする**（一括コメントではなくスレッド単位）
+   - GraphQL でスレッドIDを取得: `pullRequest.reviewThreads`
+   - 各スレッドに `addPullRequestReviewThreadReply` でリプライ
+   - 修正内容とコミットハッシュを含める
