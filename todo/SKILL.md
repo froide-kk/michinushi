@@ -4,7 +4,7 @@ description: GitHub Projectのタスク一覧をPM視点で構造化して報告
 argument-hint: "[filter: all|backlog|in-progress]"
 context: fork
 agent: Explore
-allowed-tools: Bash(gh *), Read
+allowed-tools: Bash(gh api *, gh issue list *, gh pr list *), Read
 ---
 
 # /todo — タスク一覧報告
@@ -31,6 +31,7 @@ gh api graphql -f query='
     projectV2(number: <projectNumber>) {
       title
       items(first: 50) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           fieldValueByName(name: "Status") {
             ... on ProjectV2ItemFieldSingleSelectValue { name }
@@ -53,12 +54,12 @@ gh api graphql -f query='
 
 ### オープンIssue一覧
 ```bash
-gh issue list --repo <owner>/<repo> --state open --json number,title,labels,assignees,createdAt,updatedAt
+gh issue list --repo <owner>/<repo> --state open --limit 200 --json number,title,labels,assignees,createdAt,updatedAt
 ```
 
 ### オープンPR一覧
 ```bash
-gh pr list --repo <owner>/<repo> --state open --json number,title,headRefName,body,reviewDecision
+gh pr list --repo <owner>/<repo> --state open --limit 200 --json number,title,headRefName,body,reviewDecision
 ```
 
 ## Step 3: PR↔Issue紐付け検出
