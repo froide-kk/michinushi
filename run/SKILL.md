@@ -95,7 +95,7 @@ disable-model-invocation: true
 
 ## Step 7: ADR作成（該当する場合）
 
-設計上の分岐点で判断を行った場合、`docs/adr/ADR-XXX.md` を作成する。
+設計上の分岐点で判断を行った場合、`docs/adr/ADR-<連番>.md`（例: `ADR-4.md`）を作成する。
 
 **ADRを作成する基準**:
 - 複数の選択肢を検討して1つを選んだ場合
