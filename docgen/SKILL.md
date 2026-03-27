@@ -88,11 +88,16 @@ metadata:
 
 生成した YAML を以下の観点で検証する。
 
+**構造チェック:**
 - [ ] `required` フィールドがすべて含まれているか
 - [ ] `description` の記載に曖昧な表現（「〜など」「適宜」「必要に応じて」）がないか
 - [ ] ID の命名規則が一貫しているか（例: `FR-001`, `API-USER-001`）
 - [ ] 上流設計書との ID 参照が整合しているか
 - [ ] Mermaid 図がある場合、構文が正しいか
+
+**実装との整合性チェック・残存チェック（既存設計書の更新時は必須）:**
+- `.claude/config/design.yml` の `implementationSources` に記載された実装ファイルを読み、設計書と照合する
+- `.claude/config/design.yml` の `staleCheckPoints` に記載されたチェック観点を順に確認する
 
 ### Step 5: バリデーション
 

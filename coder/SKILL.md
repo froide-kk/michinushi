@@ -35,6 +35,7 @@ Conductorから実装計画を受け取った場合:
    - 計画の順序に従って変更を適用
    - Server Action: `requireAuth()` → `validateInput()` → Prisma（storeIdフィルタ必須）→ `revalidatePath()`
    - UI: `.claude/config/ui.yml` の方針に従う（Web標準優先、既存インラインスタイル踏襲）
+   - `.claude/config/tech.yml` の validation / database セクションのルールに従う
 
 3. **検証**
    - `pnpm check-types` で型チェック
