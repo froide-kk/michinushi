@@ -1,10 +1,10 @@
 ---
-name: init
+name: setup
 description: AI駆動開発の初期セットアップ。リポジトリの状態を自動検出し、新規/既存に応じたガイダンスを提供。GitHub Project作成、スコープ確認、Skill配置を行う。
 disable-model-invocation: true
 ---
 
-# /init — AI駆動開発 初期セットアップ
+# /setup — AI駆動開発 初期セットアップ
 
 リポジトリの状態を自動検出し、状況に応じたセットアップを実行する。
 「新規ですか？」とは聞かず、見ればわかることは見て判断する。
@@ -74,7 +74,7 @@ $ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project
 利用可能なコマンド:
   /run     — タスク実行（/run #33 or /run 自然言語指示）
   /todo    — タスク一覧（PM視点の構造化報告）
-  /init    — このセットアップ（再実行可能）
+  /setup   — このセットアップ（再実行可能）
 
 専門Skill:
   docgen — YAML設計書の生成・更新（Claude自動呼び出し）
