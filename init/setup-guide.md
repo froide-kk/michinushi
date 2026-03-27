@@ -43,7 +43,8 @@ gh auth status
 `Token scopes` に以下が含まれていることを確認:
 - `repo` — Issue/PR操作
 - `read:org` — Organization情報の読み取り
-- `project` — GitHub Projects操作
+- `read:project` — GitHub Projectsの読み取り
+- `project` — GitHub Projectsの操作
 
 不足がある場合:
 ```bash
