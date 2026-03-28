@@ -14,7 +14,7 @@
     "componentId": {
       "type": "string",
       "description": "コンポーネントの一意なID（例: LC-001, PC-001など、システム構成スキーマのIDと連携）",
-      "pattern": "^(lc|pc)-\\d{3}$"
+      "pattern": "^(LC|PC)-\\d{3}$"
     },
     "description": {
       "type": "string",
@@ -98,7 +98,7 @@
           "dependentComponentId": {
             "type": "string",
             "description": "依存するコンポーネントのID（システム構成スキーマのIDと連携）",
-            "pattern": "^(lc|pc)-\\ßd{3}$"
+            "pattern": "^(LC|PC)-\\d{3}$"
           },
           "dependencyType": {
             "type": "string",

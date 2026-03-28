@@ -23,7 +23,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "コンポーネントの一意なID（例: lc-001）",
+            "description": "コンポーネントの一意なID（例: LC-001）",
             "pattern": "^LC-\\d{3}$"
           },
           "name": {

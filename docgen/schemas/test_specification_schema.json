@@ -84,8 +84,7 @@
         "required": [
           "testCaseId",
           "testCaseName",
-          "testSteps",
-          "expectedResult"
+          "testSteps"
         ]
       }
     },

@@ -149,9 +149,8 @@
               }
             },
             "description": "HTTPステータスコードごとのレスポンス定義"
-          }
-        },
-        "databaseMappings": {
+          },
+          "databaseMappings": {
           "type": "array",
           "description": "API処理に関与するデータベース操作の定義",
           "items": {
@@ -196,6 +195,7 @@
             },
             "required": ["tableName", "operation", "columns"]
           }
+        }
         },
         "required": ["path", "method", "summary"]
       }
