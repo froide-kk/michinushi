@@ -27,7 +27,7 @@
     },
     "filePath": {
       "type": "string",
-      "description": "実装ファイルのパス（例: apps/store/src/actions/auth.ts）。"
+      "description": "実装ファイルのパス（例: app/_actions/auth.ts）。"
     },
     "actions": {
       "type": "array",

@@ -37,7 +37,7 @@
           },
           "filePath": {
             "type": "string",
-            "description": "実装ファイルのパス（例: apps/store/src/app/api/uploads/photo/route.ts）。"
+            "description": "実装ファイルのパス（例: app/api/uploads/photo/route.ts）。"
           },
           "methods": {
             "type": "array",

@@ -27,7 +27,7 @@
     },
     "filePath": {
       "type": "string",
-      "description": "実装ファイルのパス（例: packages/ui-components/src/Button/Button.tsx）。"
+      "description": "実装ファイルのパス（例: src/components/Button/Button.tsx）。"
     },
     "category": {
       "type": "string",
