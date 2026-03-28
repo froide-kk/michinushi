@@ -53,6 +53,17 @@ Triage → Todo → In Progress → In Review → Done
 
 各工程で必要な Skill だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `/run` が行います。
 
+### YAML 設計書
+
+Michinushi は設計書を **JSON Schema 準拠の YAML** で管理します。要件定義からテスト仕様まで、22 種類のスキーマを用意しており、コードと同じリポジトリで設計書のバージョン管理・差分レビューが可能です。
+
+生成された YAML 設計書は Web ビューアーで閲覧・PDF エクスポートできます。
+
+- **ビューアー**: https://yaml-doc-renderer.web.app
+- プロジェクトの `docs/` 配下の YAML ファイルをドラッグ＆ドロップで読み込み
+- Mermaid 図（ER 図、フローチャート等）も自動レンダリング
+- PDF エクスポート対応（右上のダウンロードボタン）
+
 ## Installation
 
 ### 1. Skills の導入
