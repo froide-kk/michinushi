@@ -22,7 +22,7 @@
     },
     "baseUrl": {
       "type": "string",
-      "format": "uri",
+      "format": "uri-reference",
       "description": "APIのベースURL（内部Route Handlerの場合は「/」）"
     },
     "version": {

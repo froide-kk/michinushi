@@ -29,7 +29,7 @@ JSON スキーマに準拠した YAML 設計書を生成する。
 | 業務フロー | `docs/schemas/business_process_flow_schema.json` | 任意 |
 | ドメインモデル | `docs/schemas/domain_model_schema.json` | 必須 |
 | システム構成 | `docs/schemas/system_architecture_schema.json` | 必須 |
-| DB設計（テーブル定義） | `docs/schemas/database_design_schema.json` | 必須 |
+| DB設計（テーブル定義） | `docs/schemas/database_table_schema.json` | 必須 |
 | DB設計（全体概要） | `docs/schemas/database_overview_schema.json` | 必須 |
 | API仕様 | `docs/schemas/api_specification_schema.json` | 必須 |
 | コンポーネント設計 | `docs/schemas/component_design_schema.json` | 必須 |
@@ -77,7 +77,10 @@ JSON スキーマに準拠した YAML 設計書を生成する。
 出力テンプレート:
 
 ```yaml
-$schema: docs/schemas/<schema_name>.json
+$schema: <設計書ファイルからschemasディレクトリへの相対パス>/<schema_name>.json
+# 例: docs/ 直下 → ./schemas/xxx.json
+# 例: docs/features/ 配下 → ../schemas/xxx.json
+# 例: docs/features/store/ 配下 → ../../schemas/xxx.json
 
 metadata:
   version: "1.0.0"
