@@ -62,7 +62,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "物理コンポーネントの一意なID（例: pc-001）",
+            "description": "物理コンポーネントの一意なID（例: PC-001）",
             "pattern": "^PC-\\d{3}$"
           },
           "name": {
