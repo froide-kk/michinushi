@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "システム構成スキーマ",
+  "description": "システム全体の論理的・物理的な構成要素とその関係性、デプロイメント構成を定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "architectureName": {
+      "type": "string",
+      "description": "システム構成の名称（例: ECサイトシステム構成）"
+    },
+    "description": {
+      "type": "string",
+      "description": "システム構成全体の概要説明"
+    },
+    "logicalComponents": {
+      "type": "array",
+      "description": "論理的なコンポーネントのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "コンポーネントの一意なID（例: lc-001）",
+            "pattern": "^LC-\\d{3}$"
+          },
+          "name": {
+            "type": "string",
+            "description": "コンポーネント名（例: ユーザー管理、商品カタログ）"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Service",
+              "Database",
+              "ExternalSystem",
+              "Module",
+              "Gateway"
+            ],
+            "description": "コンポーネントの種類"
+          },
+          "description": {
+            "type": "string",
+            "description": "コンポーネントの概要説明"
+          },
+          "responsibilities": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "コンポーネントの主な責務"
+          }
+        },
+        "required": ["id", "name", "type", "description"]
+      }
+    },
+    "physicalComponents": {
+      "type": "array",
+      "description": "物理的なデプロイメント要素のリスト（サーバー、コンテナなど）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "物理コンポーネントの一意なID（例: pc-001）",
+            "pattern": "^PC-\\d{3}$"
+          },
+          "name": {
+            "type": "string",
+            "description": "物理コンポーネント名（例: Webサーバー、DBサーバー）"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "VM",
+              "Container",
+              "ServerlessFunction",
+              "ManagedService",
+              "LoadBalancer"
+            ],
+            "description": "物理コンポーネントの種類"
+          },
+          "description": {
+            "type": "string",
+            "description": "物理コンポーネントの概要説明"
+          },
+          "specifications": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "ハードウェア/ソフトウェア仕様（例: CPU数、メモリ、OS）"
+          }
+        },
+        "required": ["id", "name", "type", "description"]
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "コンポーネント間の接続関係",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromComponentId": {
+            "type": "string",
+            "description": "接続元コンポーネントのID",
+            "pattern": "^(LC|PC)-\\d{3}$"
+          },
+          "toComponentId": {
+            "type": "string",
+            "description": "接続先コンポーネントのID",
+            "pattern": "^(LC|PC)-\\d{3}$"
+          },
+          "protocol": {
+            "type": "string",
+            "description": "使用プロトコル（例: HTTP/S, gRPC, JDBC）"
+          },
+          "description": {
+            "type": "string",
+            "description": "接続の説明（例: API通信、DBアクセス）"
+          }
+        },
+        "required": ["fromComponentId", "toComponentId", "protocol"]
+      }
+    },
+    "architectureDiagramMermaid": {
+      "type": "string",
+      "description": "システム構成図をMermaid記法で記述した図。"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがアーキテクチャを実装する際の具体的な指示やヒント。例: 'マイクロサービス間の通信はgRPCを使用してください'。"
+    }
+  },
+  "required": [
+    "metadata",
+    "architectureName",
+    "logicalComponents",
+    "physicalComponents",
+    "connections",
+    "architectureDiagramMermaid"
+  ]
+}

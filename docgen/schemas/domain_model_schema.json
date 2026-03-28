@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ドメインモデル定義スキーマ",
+  "description": "プロジェクトが扱うビジネスの概念（エンティティ）と、それらの属性、関係性を定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "modelName": {
+      "type": "string",
+      "description": "ドメインモデルの名称（例: ECサイトドメインモデル）"
+    },
+    "description": {
+      "type": "string",
+      "description": "ドメインモデル全体の概要説明"
+    },
+    "entities": {
+      "type": "array",
+      "description": "主要なドメインエンティティのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "エンティティの一意なID（例: ENTITY-001）",
+            "pattern": "^ENTITY-\\d{3}$"
+          },
+          "name": {
+            "type": "string",
+            "description": "エンティティ名（例: 顧客、商品、注文）"
+          },
+          "description": {
+            "type": "string",
+            "description": "エンティティの概要説明"
+          },
+          "attributes": {
+            "type": "array",
+            "description": "エンティティが持つ属性のリスト",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "属性名（例: 顧客ID、商品名）"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "データ型（例: string, integer, boolean, date）"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "属性の説明"
+                },
+                "isIdentifier": {
+                  "type": "boolean",
+                  "description": "主キーなど、識別子であるか"
+                },
+                "isNullable": {
+                  "type": "boolean",
+                  "description": "NULLを許容するか"
+                }
+              },
+              "required": ["name", "type", "description"]
+            }
+          }
+        },
+        "required": ["id", "name", "description", "attributes"]
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "description": "エンティティ間の関係性のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromEntityId": {
+            "type": "string",
+            "description": "関係性の起点となるエンティティのID",
+            "pattern": "^ENTITY-\\d{3}$"
+          },
+          "toEntityId": {
+            "type": "string",
+            "description": "関係性の終点となるエンティティのID",
+            "pattern": "^ENTITY-\\d{3}$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "one-to-one",
+              "one-to-many",
+              "many-to-one",
+              "many-to-many"
+            ],
+            "description": "関係性の種類"
+          },
+          "description": {
+            "type": "string",
+            "description": "関係性の説明（例: 顧客は複数の注文を持つ）"
+          }
+        },
+        "required": ["fromEntityId", "toEntityId", "type", "description"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがドメインモデルを実装する際の具体的な指示やヒント。例: 'エンティティはValue Objectパターンで実装してください'。"
+    }
+  },
+  "required": ["metadata", "modelName", "entities"]
+}

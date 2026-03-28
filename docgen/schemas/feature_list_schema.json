@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "機能一覧スキーマ",
+  "description": "システムの全機能をカテゴリ別に一覧化し、各機能の概要、状態、関連画面、詳細設計へのリンクを管理するためのスキーマです。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "projectName": {
+      "type": "string",
+      "description": "この機能一覧が属するプロジェクト名。"
+    },
+    "featureCategories": {
+      "type": "array",
+      "description": "機能カテゴリのリスト。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "categoryName": {
+            "type": "string",
+            "description": "機能カテゴリの名称（例: ユーザー管理）。"
+          },
+          "features": {
+            "type": "array",
+            "description": "このカテゴリに属する機能の要約リスト。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "featureId": {
+                  "type": "string",
+                  "description": "機能の一意な識別子（例: FEAT-001）。"
+                },
+                "featureName": {
+                  "type": "string",
+                  "description": "機能の名称。"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "機能の簡単な要約。"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "未着手",
+                    "設計中",
+                    "実装中",
+                    "レビュー中",
+                    "完了",
+                    "保留"
+                  ],
+                  "description": "機能の現在の開発ステータス。"
+                },
+                "relatedScreens": {
+                  "type": "array",
+                  "description": "この機能に関連する画面IDのリスト。",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "linkToDesign": {
+                  "type": "string",
+                  "description": "この機能の詳細なfeature_design.yamlファイルへの相対パス。"
+                }
+              },
+              "required": ["featureId", "featureName", "description", "status"]
+            }
+          }
+        },
+        "required": ["categoryName", "features"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIが機能一覧を理解し、実装計画を立てる際の具体的な指示やヒント。例: '優先度の高い機能から順に実装してください'。"
+    }
+  },
+  "required": ["metadata", "projectName", "featureCategories"]
+}

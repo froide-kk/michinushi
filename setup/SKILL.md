@@ -48,6 +48,32 @@ disable-model-invocation: true
 4. `.claude/config/` にプロジェクト設定ファイルを配置
 5. 要件定義から始めるか確認
 
+## Step 2.5: 設計書スキーマの配置
+
+`.claude/skills/docgen/schemas/` にマスタースキーマが存在する場合、`docs/schemas/` にコピーする。
+
+**`docs/schemas/` が未作成の場合**:
+→ ディレクトリ作成し、全スキーマをコピー
+```bash
+mkdir -p docs/schemas
+cp .claude/skills/docgen/schemas/*.json docs/schemas/
+```
+
+**`docs/schemas/` が既存の場合**:
+→ マスターに存在するが `docs/schemas/` にないファイルのみコピー（新規追加分）
+→ 既存ファイルはプロジェクト固有のカスタマイズがある可能性があるため上書きしない
+→ 差分がある場合は一覧を表示し、更新するか確認を挟む
+
+```
+📋 設計書スキーマ
+  新規: 2ファイル追加
+  差分あり: 3ファイル（マスターが更新済み）
+    - common_metadata_schema.json
+    - feature_design_schema.json
+    - test_specification_schema.json
+  → 差分ファイルを更新しますか？ (個別に確認 / 全更新 / スキップ)
+```
+
 ## Step 3: 不足項目の対応
 
 **gh auth スコープ不足**:

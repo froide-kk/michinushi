@@ -1,0 +1,255 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "API仕様スキーマ",
+  "description": "RESTful APIのエンドポイント、リクエスト/レスポンスのデータ構造、認証方法などを定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "apiName": {
+      "type": "string",
+      "description": "APIの名称（例: ユーザー管理API）"
+    },
+    "apiId": {
+      "type": "string",
+      "description": "APIの一意なID（例: API-USER-001）",
+      "pattern": "^API-[A-Z]+(-[A-Z]+)*-\\d{3}$"
+    },
+    "description": {
+      "type": "string",
+      "description": "API全体の概要説明"
+    },
+    "baseUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "APIのベースURL（内部Route Handlerの場合は「/」）"
+    },
+    "version": {
+      "type": "string",
+      "description": "APIのバージョン"
+    },
+    "authentication": {
+      "type": "string",
+      "enum": ["None", "API Key", "OAuth2", "JWT", "session_cookie", "webhook_signature"],
+      "description": "APIの認証方式"
+    },
+    "endpoints": {
+      "type": "array",
+      "description": "APIエンドポイントのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "エンドポイントのパス（例: /users/{userId}）"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+            "description": "HTTPメソッド"
+          },
+          "summary": {
+            "type": "string",
+            "description": "エンドポイントの簡潔な説明"
+          },
+          "description": {
+            "type": "string",
+            "description": "処理の詳細フロー。AIはこの内容を理解し、メインロジックの実装方針を決定すること。"
+          },
+          "scopeDefinition": {
+            "type": "object",
+            "description": "【重要】ビジネスロジックおよびデータアクセスの前提条件。AIは、メイン処理の前に必ずこれらの条件チェック（Guard Clause）をコードとして生成しなければならない。",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "スコープの概要。なぜこの制限が必要かをコード内のコメントに残すこと。"
+              },
+              "conditions": {
+                "type": "array",
+                "description": "AND条件で結合されるバリデーションまたはクエリ条件のリスト。",
+                "items": {
+                  "$ref": "#/definitions/scopeCondition"
+                }
+              }
+            },
+            "required": ["conditions"]
+          },
+          "parameters": {
+            "type": "array",
+            "description": "リクエストパラメータのリスト",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "in": {
+                  "type": "string",
+                  "enum": ["query", "header", "path", "cookie"]
+                },
+                "description": { "type": "string" },
+                "required": { "type": "boolean" },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": { "type": "string" },
+                    "format": { "type": "string" }
+                  },
+                  "required": ["type"]
+                }
+              },
+              "required": ["name", "in", "schema"]
+            }
+          },
+          "requestBody": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "required": { "type": "boolean" },
+              "content": {
+                "type": "object",
+                "patternProperties": {
+                  "^(application/json|application/xml|text/plain)$": {
+                    "type": "object",
+                    "properties": {
+                      "schema": {
+                        "type": "object",
+                        "description": "リクエストボディのスキーマ定義"
+                      }
+                    },
+                    "required": ["schema"]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "type": "object",
+            "patternProperties": {
+              "^[1-5][0-9]{2}$": {
+                "type": "object",
+                "properties": {
+                  "description": { "type": "string" },
+                  "content": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(application/json|application/xml|text/plain)$": {
+                        "type": "object",
+                        "properties": {
+                          "schema": {
+                            "type": "object",
+                            "description": "レスポンスボディのスキーマ定義"
+                          }
+                        },
+                        "required": ["schema"]
+                      }
+                    }
+                  }
+                },
+                "required": ["description"]
+              }
+            },
+            "description": "HTTPステータスコードごとのレスポンス定義"
+          }
+        },
+        "databaseMappings": {
+          "type": "array",
+          "description": "API処理に関与するデータベース操作の定義",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string",
+                "description": "操作対象のテーブル名"
+              },
+              "operation": {
+                "type": "string",
+                "enum": ["SELECT", "INSERT", "UPDATE", "DELETE", "UPSERT"],
+                "description": "実行するSQL操作のタイプ"
+              },
+              "columns": {
+                "type": "array",
+                "description": "カラムとAPIパラメータの紐付け",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "columnName": {
+                      "type": "string",
+                      "description": "DBカラム名"
+                    },
+                    "relatedElement": {
+                      "type": "string",
+                      "description": "API側の要素（例: request.body.name, response.id）"
+                    },
+                    "queryOperator": {
+                      "type": "string",
+                      "enum": ["=", "LIKE", ">", "<", ">=", "<=", "IN", "BETWEEN", "IS NULL"],
+                      "description": "検索時の比較演算子。AIに厳密な条件を指示したい場合に使用。"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "特記事項（例: '暗号化して保存', 'カンマ区切り' など、構造化できない要件を記述）"
+                    }
+                  },
+                  "required": ["columnName", "relatedElement"]
+                }
+              }
+            },
+            "required": ["tableName", "operation", "columns"]
+          }
+        },
+        "required": ["path", "method", "summary"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがコード生成する際の具体的な指示やヒント。例: 'このエンドポイントはページネーションを実装してください'。"
+    }
+  },
+  "definitions": {
+    "scopeCondition": {
+      "type": "object",
+      "description": "単一の条件定義。AIはこの定義をif文やSQLのWHERE句に変換する。",
+      "properties": {
+        "sourceType": {
+          "type": "string",
+          "enum": [
+            "DB_COLUMN",
+            "ENV_VAR",
+            "APP_CONFIG",
+            "REQ_BODY",
+            "QUERY_PARAMS",
+            "PATH_PARAMS",
+            "REQ_HEADERS",
+            "AUTH_CONTEXT",
+            "EXTERNAL_API",
+            "SYSTEM_STATE",
+            "LOCAL_VAR"
+          ],
+          "description": "条件判定に使用する値の取得元"},
+        "targetResource": {
+          "type": "string",
+          "description": "アクセス対象の識別子（テーブル名、環境変数名、API名など）。コード内での変数名やリソース参照に使用する。"
+        },
+        "key": {
+          "type": "string",
+          "description": "具体的なプロパティ名やカラム名。ドット記法（user.idなど）の場合はオブジェクトの階層を辿るコードを生成すること。"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["=", "!=", ">", "<", ">=", "<=", "IN", "NOT IN", "LIKE", "IS NULL", "IS NOT NULL", "CONTAINS"],
+          "default": "="
+        },
+        "value": {
+          "type": ["string", "number", "boolean", "array"],
+          "description": "比較対象の値。波括弧 {AUTH_CONTEXT.userId} の形式が含まれる場合、それを動的な変数参照としてコード展開すること。"
+        },
+        "description": {
+          "type": "string",
+          "description": "この条件の意図。コード内のコメントとして挿入すること。"
+        }
+      },
+      "required": ["sourceType", "key", "operator"]
+    }
+  },
+  "required": ["metadata", "apiName", "apiId", "baseUrl", "version", "endpoints"]
+}

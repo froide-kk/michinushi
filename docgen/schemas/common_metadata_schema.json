@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "共通メタデータ",
+  "description": "すべての設計書に共通するメタデータを定義します。",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "設計書自体のバージョン (例: 1.0.0)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "作成日時 (ISO 8601形式)"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最終更新日時 (ISO 8601形式)"
+    },
+    "relatedDecisions": {
+      "type": "array",
+      "description": "この設計書に関連するADR（Architecture Decision Records）の管理番号リスト。docs/adr/ 配下のファイルを参照。",
+      "items": {
+        "type": "string",
+        "pattern": "^ADR-[1-9]\\d*$",
+        "description": "ADR管理番号 (例: ADR-1)"
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "設計書の変更履歴",
+      "items": {
+        "type": "object",
+        "properties": {
+          "version": { "type": "string", "description": "変更後のバージョン" },
+          "date": { "type": "string", "format": "date", "description": "変更日" },
+          "author": { "type": "string", "description": "変更者" },
+          "description": { "type": "string", "description": "変更内容の概要" }
+        },
+        "required": ["version", "date", "author", "description"]
+      }
+    }
+  },
+  "required": ["version", "createdAt", "updatedAt"]
+}

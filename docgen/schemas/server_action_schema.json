@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Server Action スキーマ",
+  "description": "Next.js App Router の Server Actions を定義するためのスキーマ。フォーム送信、データ変更などのミューテーション処理を記述します。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "moduleId": {
+      "type": "string",
+      "description": "Server Actionsモジュールの一意な識別子（例: SA-AUTH-001）。",
+      "pattern": "^SA-[A-Z]+(-[A-Z]+)*-\\d{3}$"
+    },
+    "moduleName": {
+      "type": "string",
+      "description": "モジュールの名称（例: 認証アクション）。"
+    },
+    "description": {
+      "type": "string",
+      "description": "このモジュールが提供するServer Actionsの概要。"
+    },
+    "filePath": {
+      "type": "string",
+      "description": "実装ファイルのパス（例: apps/store/src/actions/auth.ts）。"
+    },
+    "actions": {
+      "type": "array",
+      "description": "このモジュールに含まれるServer Actionの一覧。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actionName": {
+            "type": "string",
+            "description": "Action関数名（例: signIn, createCustomer）。"
+          },
+          "description": {
+            "type": "string",
+            "description": "Actionの目的と処理内容の説明。"
+          },
+          "authentication": {
+            "type": "object",
+            "description": "認証要件。",
+            "properties": {
+              "required": {
+                "type": "boolean",
+                "description": "認証が必要かどうか。"
+              },
+              "roles": {
+                "type": "array",
+                "description": "許可されるロール（例: admin, store_owner, store_staff）。",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["required"]
+          },
+          "tenantIsolation": {
+            "type": "object",
+            "description": "テナント分離の設定。",
+            "properties": {
+              "required": {
+                "type": "boolean",
+                "description": "テナント分離が必要かどうか。"
+              },
+              "isolationField": {
+                "type": "string",
+                "description": "分離に使用するフィールド（例: store_id）。"
+              },
+              "description": {
+                "type": "string",
+                "description": "テナント分離ロジックの説明。"
+              }
+            },
+            "required": ["required"]
+          },
+          "input": {
+            "type": "object",
+            "description": "入力パラメータの定義。",
+            "properties": {
+              "zodSchema": {
+                "type": "string",
+                "description": "Zodスキーマの定義（TypeScript形式）。"
+              },
+              "fields": {
+                "type": "array",
+                "description": "入力フィールドの詳細。",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "フィールド名。"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "データ型（string, number, boolean, Date, etc.）。"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "必須かどうか。"
+                    },
+                    "validation": {
+                      "type": "string",
+                      "description": "バリデーションルール（例: email(), min(1), max(100)）。"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "フィールドの説明。"
+                    }
+                  },
+                  "required": ["name", "type", "required"]
+                }
+              }
+            }
+          },
+          "output": {
+            "type": "object",
+            "description": "出力（戻り値）の定義。",
+            "properties": {
+              "successType": {
+                "type": "string",
+                "description": "成功時の戻り値の型定義（TypeScript形式）。"
+              },
+              "errorType": {
+                "type": "string",
+                "description": "エラー時の戻り値の型定義（TypeScript形式）。"
+              },
+              "types": {
+                "type": "object",
+                "description": "出力で使用するカスタム型の定義。キーが型名、値が型定義（TypeScript形式）。",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["successType", "errorType"]
+          },
+          "prismaOperations": {
+            "type": "array",
+            "description": "実行するPrisma操作の一覧。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "type": "string",
+                  "enum": ["findUnique", "findFirst", "findMany", "create", "update", "updateMany", "delete", "upsert", "count", "aggregate", "groupBy"],
+                  "description": "Prisma操作の種類。"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "対象のPrismaモデル名（例: Customer, MedicalRecord）。"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "操作の説明。"
+                },
+                "include": {
+                  "type": "string",
+                  "description": "Prismaのinclude/selectオプション（例: store: { select: { id, storeName } }）。"
+                }
+              },
+              "required": ["operation", "model"]
+            }
+          },
+          "revalidation": {
+            "type": "object",
+            "description": "キャッシュ再検証の設定。",
+            "properties": {
+              "paths": {
+                "type": "array",
+                "description": "revalidatePathで再検証するパス。",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tags": {
+                "type": "array",
+                "description": "revalidateTagで再検証するタグ。",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "errorHandling": {
+            "type": "array",
+            "description": "エラーハンドリングの定義。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "errorType": {
+                  "type": "string",
+                  "description": "エラーの種類（例: ValidationError, NotFoundError, UnauthorizedError）。"
+                },
+                "handling": {
+                  "type": "string",
+                  "description": "エラー時の処理内容。"
+                }
+              },
+              "required": ["errorType", "handling"]
+            }
+          }
+        },
+        "required": ["actionName", "description", "authentication", "input", "output"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがServer Actionsを実装する際の具体的な指示やヒント。"
+    }
+  },
+  "required": [
+    "metadata",
+    "moduleId",
+    "moduleName",
+    "description",
+    "filePath",
+    "actions"
+  ]
+}

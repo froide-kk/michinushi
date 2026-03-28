@@ -10,7 +10,10 @@ compatibility: "Requires ajv-cli for schema validation (npm install -g ajv-cli a
 
 JSON スキーマに準拠した YAML 設計書を生成する。
 
-スキーマディレクトリ: `docs/schemas/`（プロジェクトルートからの相対パス）
+マスタースキーマ: `.claude/skills/docgen/schemas/`（michinushi で配布）
+プロジェクト用スキーマ: `docs/schemas/`（`/setup` でコピー。プロジェクト固有のカスタマイズ可）
+
+設計書の生成・バリデーションでは `docs/schemas/` を参照する。
 
 ## 生成手順
 

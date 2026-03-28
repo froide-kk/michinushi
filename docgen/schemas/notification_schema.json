@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "通知設計スキーマ",
+  "description": "システムから送信される通知（LINE、メールなど）のトリガー、チャネル、内容を定義するためのスキーマです。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "notifications": {
+      "type": "array",
+      "description": "通知定義のリスト。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "notificationId": {
+            "type": "string",
+            "description": "通知を一意に識別するID（例: makeup-approved）。"
+          },
+          "description": {
+            "type": "string",
+            "description": "この通知が何のためのものか、その目的を記述します。"
+          },
+          "trigger": {
+            "type": "string",
+            "description": "この通知が送信されるきっかけとなるビジネスイベント。"
+          },
+          "channel": {
+            "type": "string",
+            "enum": ["LINE", "Email", "SMS", "PushNotification"],
+            "description": "通知を送信するチャネル。"
+          },
+          "recipient": {
+            "type": "string",
+            "description": "通知の受信者（例: 保護者, 講師, 運営責任者）。"
+          },
+          "contentTemplate": {
+            "type": "object",
+            "description": "通知内容のテンプレート。",
+            "properties": {
+              "subject": {
+                "type": "string",
+                "description": "件名（メールの場合）。"
+              },
+              "body": {
+                "type": "string",
+                "description": "本文。{変数名} の形式でプレースホルダーを挿入可能。"
+              }
+            },
+            "required": ["body"]
+          }
+        },
+        "required": [
+          "notificationId",
+          "trigger",
+          "channel",
+          "recipient",
+          "contentTemplate"
+        ]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIに渡す実装する際の具体的な指示やヒント。例：'この通知は、ユーザーが設定で通知をオフにしていないか確認してから送信してください。'"
+    }
+  },
+  "required": ["metadata", "notifications"]
+}

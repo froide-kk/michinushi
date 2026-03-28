@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "データベース概要スキーマ",
+  "description": "データベース全体の概要、テーブル一覧、ER図、リレーションシップを定義するためのスキーマ。個別テーブルの詳細はdatabase_table_schema.jsonを使用する。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "databaseName": {
+      "type": "string",
+      "description": "データベースの名称（例: humanlink_karte_system）"
+    },
+    "description": {
+      "type": "string",
+      "description": "データベース設計全体の概要説明"
+    },
+    "dbms": {
+      "type": "string",
+      "description": "使用するDBMS（例: PostgreSQL 15, MySQL 8.0）"
+    },
+    "charset": {
+      "type": "string",
+      "description": "文字コード（例: UTF8, utf8mb4）",
+      "default": "UTF8"
+    },
+    "collation": {
+      "type": "string",
+      "description": "照合順序（例: ja_JP, utf8mb4_unicode_ci）"
+    },
+    "tables": {
+      "type": "array",
+      "description": "データベース内のテーブル一覧（概要のみ）。詳細は各テーブルのYAMLファイルを参照。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tableName": {
+            "type": "string",
+            "description": "テーブル名（物理名、スネークケース）"
+          },
+          "logicalName": {
+            "type": "string",
+            "description": "テーブルの論理名（日本語）"
+          },
+          "description": {
+            "type": "string",
+            "description": "テーブルの概要説明"
+          },
+          "detailFile": {
+            "type": "string",
+            "description": "詳細設計ファイルへの相対パス（例: ./tables/stores.yml）"
+          }
+        },
+        "required": ["tableName", "logicalName", "description", "detailFile"]
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "description": "テーブル間のリレーションシップのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "relationshipId": {
+            "type": "string",
+            "description": "リレーションシップの一意なID（例: REL-001）"
+          },
+          "fromTable": {
+            "type": "string",
+            "description": "関連元テーブル名"
+          },
+          "fromColumn": {
+            "type": "string",
+            "description": "関連元カラム名"
+          },
+          "toTable": {
+            "type": "string",
+            "description": "関連先テーブル名"
+          },
+          "toColumn": {
+            "type": "string",
+            "description": "関連先カラム名"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"],
+            "description": "リレーションシップの種類"
+          },
+          "onDelete": {
+            "type": "string",
+            "enum": ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION"],
+            "description": "ON DELETE時の動作"
+          },
+          "onUpdate": {
+            "type": "string",
+            "enum": ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION"],
+            "description": "ON UPDATE時の動作"
+          },
+          "description": {
+            "type": "string",
+            "description": "リレーションシップの説明"
+          }
+        },
+        "required": ["relationshipId", "fromTable", "fromColumn", "toTable", "toColumn", "type"]
+      }
+    },
+    "erDiagramMermaid": {
+      "type": "string",
+      "description": "ER図をMermaid記法で記述した図。\n例:\nerDiagram\n  CUSTOMER ||--o{ ORDER : places\n  ORDER ||--|{ LINE-ITEM : contains"
+    },
+    "multiTenantStrategy": {
+      "type": "object",
+      "description": "マルチテナント戦略の説明",
+      "properties": {
+        "approach": {
+          "type": "string",
+          "enum": ["shared-database-shared-schema", "shared-database-separate-schema", "separate-database"],
+          "description": "マルチテナントのアプローチ"
+        },
+        "tenantIdColumn": {
+          "type": "string",
+          "description": "テナントIDを格納するカラム名（例: store_id, tenant_id）"
+        },
+        "description": {
+          "type": "string",
+          "description": "マルチテナント戦略の詳細説明"
+        }
+      },
+      "required": ["approach", "tenantIdColumn", "description"]
+    },
+    "indexingStrategy": {
+      "type": "object",
+      "description": "インデックス戦略の概要",
+      "properties": {
+        "primaryKeyStrategy": {
+          "type": "string",
+          "description": "主キーの戦略（例: UUID v4, ULID, Auto Increment）"
+        },
+        "tenantIndexing": {
+          "type": "string",
+          "description": "テナント分離用のインデックス戦略"
+        },
+        "performanceConsiderations": {
+          "type": "array",
+          "description": "パフォーマンス考慮事項のリスト",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["primaryKeyStrategy", "tenantIndexing"]
+    },
+    "securityConsiderations": {
+      "type": "array",
+      "description": "セキュリティ考慮事項のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "セキュリティカテゴリ（例: 個人情報保護、アクセス制御、暗号化）"
+          },
+          "description": {
+            "type": "string",
+            "description": "具体的な対策内容"
+          }
+        },
+        "required": ["category", "description"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがこのDB設計からPrismaスキーマやマイグレーションを生成する際のヒント。例: 'テナント分離のため、全クエリにstore_idフィルタを適用してください'。"
+    }
+  },
+  "required": ["metadata", "databaseName", "dbms", "tables", "relationships", "multiTenantStrategy"]
+}

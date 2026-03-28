@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ペルソナ定義スキーマ",
+  "description": "ユーザーの属性、目標、課題などを定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "id": {
+      "type": "string",
+      "description": "ペルソナの一意なID",
+      "pattern": "^PERSONA-\\d{3}$"
+    },
+    "name": {
+      "type": "string",
+      "description": "ペルソナ名"
+    },
+    "age": {
+      "type": "integer",
+      "description": "年齢",
+      "minimum": 0
+    },
+    "occupation": {
+      "type": "string",
+      "description": "職業"
+    },
+    "goals": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "ペルソナの目標"
+    },
+    "painPoints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "ペルソナの課題"
+    },
+    "bio": {
+      "type": "string",
+      "description": "ペルソナの背景や詳細な説明"
+    },
+    "quote": {
+      "type": "string",
+      "description": "ペルソナを象徴する引用句"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがペルソナを理解し、ユーザー体験を設計する際の具体的な指示やヒント。例: 'このペルソナはモバイル操作が苦手なため、シンプルなUIにしてください'。"
+    }
+  },
+  "required": ["metadata", "id", "name", "goals"]
+}

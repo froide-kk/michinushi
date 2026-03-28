@@ -1,0 +1,278 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "認証・認可フロー定義スキーマ",
+  "description": "システムの認証・認可フローを定義するためのスキーマ。セッション/トークンベース、MFA、OAuth、詳細なセキュリティポリシーをサポートします。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "overview": {
+      "type": "string",
+      "description": "認証アーキテクチャの概要説明。"
+    },
+    "authenticationFlow": {
+      "description": "プライマリなユーザー認証プロセス（ログインフロー）の詳細。",
+      "$ref": "#/definitions/flowContent"
+    },
+    "registrationFlow": {
+      "description": "新規ユーザー登録プロセス（サインアップ）の詳細。Email/Pass登録時などに使用。",
+      "$ref": "#/definitions/flowContent"
+    },
+    "logoutFlow": {
+      "type": "object",
+      "description": "ログアウトフローの詳細。",
+      "properties": {
+        "diagram": {
+          "type": "string",
+          "description": "ログアウトフローを可視化するMermaidシーケンス図。"
+        },
+        "clientAction": {
+          "type": "string",
+          "description": "クライアント側で行う処理 (例: メモリ上のAccessTokenを破棄)。"
+        },
+        "serverAction": {
+          "type": "string",
+          "description": "サーバー側で行う処理 (例: RefreshTokenをDBで無効化する)。"
+        }
+      },
+      "required": ["clientAction", "serverAction"]
+    },
+    "sessionManagement": {
+      "type": "object",
+      "description": "[セッションベースの場合]ユーザーセッションがどのように管理されるかの詳細。",
+      "properties": {
+        "storageType": { "type": "string" },
+        "cookieDetails": { "$ref": "#/definitions/cookieDetails" },
+        "sessionPayload": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dataPayloadItem" }
+        },
+        "validationProcess": { "type": "object", "properties": { "description": { "type": "string" } } }
+      },
+      "required": ["storageType", "cookieDetails", "sessionPayload", "validationProcess"]
+    },
+    "tokenManagement": {
+      "type": "object",
+      "description": "[トークンベースの場合] JWTなどのトークンベース認証の詳細。",
+      "properties": {
+        "accessToken": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "default": "JWT" },
+            "algorithm": { "type": "string" },
+            "expiresIn": { "type": "string" },
+            "storage": { "type": "string", "enum": ["memory", "cookie"] },
+            "payload": { "type": "array", "items": { "$ref": "#/definitions/dataPayloadItem" } }
+          },
+          "required": ["algorithm", "expiresIn", "storage", "payload"]
+        },
+        "refreshToken": {
+          "type": "object",
+          "properties": {
+            "expiresIn": { "type": "string" },
+            "storage": { "type": "string", "enum": ["cookie", "database"] },
+            "rotationEnabled": { "type": "boolean" }
+          },
+          "required": ["expiresIn", "storage", "rotationEnabled"]
+        }
+      },
+      "required": ["accessToken", "refreshToken"]
+    },
+    "authorizationModel": {
+      "type": "object",
+      "description": "アクセス制御モデルの詳細。",
+      "properties": {
+        "modelType": { "type": "string", "enum": ["RBAC", "ABAC"] },
+        "description": { "type": "string" },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": { "type": "string" },
+              "description": { "type": "string" },
+              "permissions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/permissionItem"
+                }
+              }
+            },
+            "required": ["role", "permissions"]
+          }
+        }
+      },
+      "required": ["modelType", "description"]
+    },
+    "federatedIdentity": {
+      "type": "array",
+      "description": "サードパーティIDプロバイダ (OAuth/OIDC) との連携設定。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string", "enum": ["Google", "Apple", "GitHub", "Custom"] },
+          "clientId": { "type": "string" },
+          "scopes": { "type": "array", "items": { "type": "string" } },
+          "callbackUrl": { "type": "string" }
+        },
+        "required": ["provider", "clientId", "scopes", "callbackUrl"]
+      }
+    },
+    "mfaConfiguration": {
+      "type": "object",
+      "description": "多要素認証 (MFA) の設定。",
+      "properties": {
+        "status": { "type": "string", "enum": ["mandatory", "optional", "disabled"] },
+        "methods": {
+          "type": "array",
+          "description": "許可するMFA方式。",
+          "items": { "type": "string", "enum": ["TOTP", "SMS", "Email", "WebAuthn"] }
+        },
+        "recoveryOptions": { "type": "boolean", "description": "リカバリーコードの発行を許可するか。" }
+      },
+      "required": ["status", "methods"]
+    },
+    "securityPolicies": {
+      "type": "object",
+      "description": "パスワード強度やアカウントロックアウトに関するポリシー。",
+      "properties": {
+        "passwordPolicy": {
+          "type": "object",
+          "properties": {
+            "minLength": { "type": "integer" },
+            "requiresUppercase": { "type": "boolean" },
+            "requiresNumber": { "type": "boolean" }
+          }
+        },
+        "lockoutPolicy": {
+          "type": "object",
+          "description": "ログイン失敗時のアカウントロックアウト設定。",
+          "properties": {
+            "maxAttempts": { "type": "integer" },
+            "lockoutDurationSeconds": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "auxiliaryFlows": {
+      "type": "array",
+      "description": "その他の補助的な認証フロー（パスワードリセットなど）。",
+      "items": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "flowName": { "type": "string" }
+            },
+            "required": ["flowName"]
+          },
+          {
+            "$ref": "#/definitions/flowContent"
+          }
+        ]
+      }
+    },
+    "errorHandling": {
+      "type": "object",
+      "description": "認証・認可の失敗時（アンハッピーパス）におけるサーバーの戦略とクライアントの挙動。",
+      "properties": {
+        "authenticationFailure": { "$ref": "#/definitions/errorCondition" },
+        "authorizationFailure": { "$ref": "#/definitions/errorCondition" },
+        "tokenExpiration": {
+          "allOf": [
+            { "$ref": "#/definitions/errorCondition" },
+            {
+              "type": "object",
+              "properties": {
+                "refreshTokenFailureAction": { "type": "string" }
+              },
+              "required": ["refreshTokenFailureAction"]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "metadata",
+    "overview",
+    "authenticationFlow",
+    "logoutFlow",
+    "authorizationModel"
+  ],
+  "oneOf": [
+    { "required": ["sessionManagement"] },
+    { "required": ["tokenManagement"] }
+  ],
+  "definitions": {
+    "flowContent": {
+      "type": "object",
+      "properties": {
+        "diagram": {
+          "type": "string",
+          "description": "フローを可視化するMermaidシーケンス図。"
+        },
+        "steps": {
+          "type": "array",
+          "description": "プロセスのステップごとの説明。",
+          "items": {
+            "$ref": "#/definitions/flowStep"
+          }
+        }
+      },
+      "required": ["diagram", "steps"]
+    },
+    "dataPayloadItem": {
+      "type": "object",
+      "description": "セッションやトークンに格納されるデータの定義。",
+      "properties": {
+        "key": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["key", "type", "description"]
+    },
+    "flowStep": {
+      "type": "object",
+      "properties": {
+        "step": { "type": "integer" },
+        "actor": { "type":"string", "enum": ["User", "Client", "Backend","Frontend", "IdP", "Database"] },
+        "action": { "type": "string" },
+        "subSteps": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["step", "actor", "action"]
+    },
+    "cookieDetails": {
+      "type": "object",
+      "description": "セッションCookieの詳細設定。",
+      "properties": {
+        "name": { "type": "string" },
+        "httpOnly": { "type": "boolean" },
+        "secure": { "type": "string" },
+        "sameSite": { "type": "string", "enum": ["Strict", "Lax", "None"] },
+        "maxAge": { "type": "integer" }
+      },
+      "required": ["name", "httpOnly", "secure", "sameSite"]
+    },
+    "errorCondition": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "responseSchemaRef": { "type": "string" },
+        "clientAction": { "type": "string" }
+      },
+      "required": ["description", "responseSchemaRef", "clientAction"]
+    },
+    "permissionItem": {
+      "type": "object",
+      "description": "リソースとアクションを組み合わせた権限定義。",
+      "properties": {
+        "resource": { "type": "string", "description": "対象リソース (例: articles, users)" },
+        "action": { "type": "string", "enum": ["create", "read", "update", "delete", "manage"], "description": "実行可能なアクション" }
+      },
+      "required": ["resource", "action"]
+    }
+  }
+}

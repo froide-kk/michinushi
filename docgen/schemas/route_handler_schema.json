@@ -1,0 +1,288 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Route Handler スキーマ",
+  "description": "Next.js App Router の Route Handlers を定義するためのスキーマ。Webhook、ファイルアップロード、リアルタイム通信などのAPI エンドポイントを記述します。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "moduleId": {
+      "type": "string",
+      "description": "Route Handlersモジュールの一意な識別子（例: RH-UPLOAD-001）。",
+      "pattern": "^RH-[A-Z]+-\\d{3}$"
+    },
+    "moduleName": {
+      "type": "string",
+      "description": "モジュールの名称（例: ファイルアップロードAPI）。"
+    },
+    "description": {
+      "type": "string",
+      "description": "このモジュールが提供するRoute Handlersの概要。"
+    },
+    "handlers": {
+      "type": "array",
+      "description": "このモジュールに含まれるRoute Handlerの一覧。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "エンドポイントのパス（例: /api/uploads/photo, /api/webhooks/stripe）。"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "実装ファイルのパス（例: apps/store/src/app/api/uploads/photo/route.ts）。"
+          },
+          "methods": {
+            "type": "array",
+            "description": "サポートするHTTPメソッド。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+                  "description": "HTTPメソッド。"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "このメソッドの処理内容の説明。"
+                },
+                "authentication": {
+                  "type": "object",
+                  "description": "認証要件。",
+                  "properties": {
+                    "required": {
+                      "type": "boolean",
+                      "description": "認証が必要かどうか。"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["session", "apiKey", "webhook_signature", "none"],
+                      "description": "認証の種類。"
+                    },
+                    "roles": {
+                      "type": "array",
+                      "description": "許可されるロール（session認証の場合）。",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": ["required"]
+                },
+                "tenantIsolation": {
+                  "type": "object",
+                  "description": "テナント分離の設定。",
+                  "properties": {
+                    "required": {
+                      "type": "boolean",
+                      "description": "テナント分離が必要かどうか。"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "テナント分離ロジックの説明。"
+                    }
+                  },
+                  "required": ["required"]
+                },
+                "request": {
+                  "type": "object",
+                  "description": "リクエストの定義。",
+                  "properties": {
+                    "contentType": {
+                      "type": "string",
+                      "description": "Content-Type（例: application/json, multipart/form-data）。"
+                    },
+                    "headers": {
+                      "type": "array",
+                      "description": "必要なリクエストヘッダー。",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "ヘッダー名。"
+                          },
+                          "required": {
+                            "type": "boolean",
+                            "description": "必須かどうか。"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "ヘッダーの説明。"
+                          }
+                        },
+                        "required": ["name", "required"]
+                      }
+                    },
+                    "body": {
+                      "type": "object",
+                      "description": "リクエストボディの定義。",
+                      "properties": {
+                        "zodSchema": {
+                          "type": "string",
+                          "description": "Zodスキーマの定義（TypeScript形式）。"
+                        },
+                        "fields": {
+                          "type": "array",
+                          "description": "ボディフィールドの詳細。",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "フィールド名。"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "データ型。"
+                              },
+                              "required": {
+                                "type": "boolean",
+                                "description": "必須かどうか。"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "フィールドの説明。"
+                              }
+                            },
+                            "required": ["name", "type", "required"]
+                          }
+                        }
+                      }
+                    },
+                    "queryParams": {
+                      "type": "array",
+                      "description": "クエリパラメータの定義。",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "パラメータ名。"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "データ型。"
+                          },
+                          "required": {
+                            "type": "boolean",
+                            "description": "必須かどうか。"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "パラメータの説明。"
+                          }
+                        },
+                        "required": ["name", "type", "required"]
+                      }
+                    }
+                  }
+                },
+                "response": {
+                  "type": "object",
+                  "description": "レスポンスの定義。",
+                  "properties": {
+                    "successStatus": {
+                      "type": "integer",
+                      "description": "成功時のHTTPステータスコード（例: 200, 201）。"
+                    },
+                    "successBody": {
+                      "type": "string",
+                      "description": "成功時のレスポンスボディの型定義（TypeScript形式）。"
+                    },
+                    "errorResponses": {
+                      "type": "array",
+                      "description": "エラーレスポンスの定義。",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTPステータスコード。"
+                          },
+                          "condition": {
+                            "type": "string",
+                            "description": "このエラーが発生する条件。"
+                          },
+                          "body": {
+                            "type": "string",
+                            "description": "エラーレスポンスボディの型定義。"
+                          }
+                        },
+                        "required": ["status", "condition"]
+                      }
+                    }
+                  },
+                  "required": ["successStatus"]
+                },
+                "processing": {
+                  "type": "object",
+                  "description": "処理内容の詳細。",
+                  "properties": {
+                    "steps": {
+                      "type": "array",
+                      "description": "処理ステップの説明。",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "step": {
+                            "type": "integer",
+                            "description": "ステップ番号。"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "処理内容の説明。"
+                          }
+                        },
+                        "required": ["step", "description"]
+                      }
+                    },
+                    "externalServices": {
+                      "type": "array",
+                      "description": "連携する外部サービス。",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "service": {
+                            "type": "string",
+                            "description": "サービス名（例: Cloud Storage, Stripe）。"
+                          },
+                          "purpose": {
+                            "type": "string",
+                            "description": "利用目的。"
+                          }
+                        },
+                        "required": ["service", "purpose"]
+                      }
+                    }
+                  }
+                }
+              },
+              "required": ["method", "description", "authentication", "response"]
+            }
+          }
+        },
+        "required": ["path", "filePath", "methods"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがRoute Handlersを実装する際の具体的な指示やヒント。"
+    }
+  },
+  "required": [
+    "metadata",
+    "moduleId",
+    "moduleName",
+    "description",
+    "handlers"
+  ]
+}

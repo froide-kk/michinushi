@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "業務フロー定義スキーマ",
+  "description": "クライアントの業務プロセスを可視化し、関係者間の認識を統一するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "flowName": {
+      "type": "string",
+      "description": "業務プロセスの名称"
+    },
+    "description": {
+      "type": "string",
+      "description": "業務フロー全体の概要説明"
+    },
+    "actors": {
+      "type": "array",
+      "description": "業務に関わる役割のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "アクターの一意なID（例: ACTOR-001）",
+            "pattern": "^ACTOR-\\d{3}$"
+          },
+          "name": {
+            "type": "string",
+            "description": "アクター名（例: 顧客、営業担当、システム）"
+          },
+          "role": {
+            "type": "string",
+            "description": "アクターの役割"
+          }
+        },
+        "required": ["id", "name", "role"]
+      }
+    },
+    "trigger": {
+      "type": "string",
+      "description": "この業務が開始される条件やイベント"
+    },
+    "steps": {
+      "type": "array",
+      "description": "業務フローの各ステップ",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stepId": {
+            "type": "string",
+            "description": "ステップの一意なID（例: STEP-001）",
+            "pattern": "^STEP-\\d{3}$"
+          },
+          "stepName": {
+            "type": "string",
+            "description": "ステップの名称"
+          },
+          "actorId": {
+            "type": "string",
+            "description": "このステップを実行するアクターのID",
+            "pattern": "^ACTOR-\\d{3}$"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Task", "Decision", "Event", "Start", "End"],
+            "description": "ステップの種類"
+          },
+          "details": {
+            "type": "string",
+            "description": "ステップの詳細な説明"
+          },
+          "outputs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "このステップで生成される成果物や情報"
+          },
+          "nextSteps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "type": "string",
+                  "description": "次のステップへの分岐条件（Decisionタイプの場合）"
+                },
+                "stepId": {
+                  "type": "string",
+                  "description": "次のステップのID",
+                  "pattern": "^STEP-\\d{3}$"
+                }
+              },
+              "required": ["stepId"]
+            },
+            "description": "次のステップへの遷移情報"
+          },
+          "relatedFunctionalRequirementIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "関連する機能要件のID"
+          }
+        },
+        "required": ["stepId", "stepName", "actorId", "type", "details"]
+      }
+    },
+    "endCondition": {
+      "type": "string",
+      "description": "この業務が完了と見なされる条件"
+    },
+    "flowDiagramMermaid": {
+      "type": "string",
+      "description": "業務フローをMermaid記法で記述した図。例: graph TD\n  A[開始] --> B{条件};\n  B -- はい --> C[処理];\n  B -- いいえ --> D[別の処理];\n  C --> E[終了];\n  D --> E;"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがこのビジネスプロセスを実装する際の具体的な指示やヒント。例: 'トランザクション処理では楽観的ロックを使用してください'。"
+    }
+  },
+  "required": [
+    "metadata",
+    "flowName",
+    "actors",
+    "trigger",
+    "steps",
+    "endCondition",
+    "flowDiagramMermaid"
+  ]
+}

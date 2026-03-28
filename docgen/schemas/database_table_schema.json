@@ -1,0 +1,294 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "データベーステーブル詳細スキーマ",
+  "description": "個別テーブルの詳細設計（カラム、インデックス、制約、リレーションシップ）を定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "tableName": {
+      "type": "string",
+      "description": "テーブル名（物理名、スネークケース）"
+    },
+    "logicalName": {
+      "type": "string",
+      "description": "テーブルの論理名（日本語）"
+    },
+    "description": {
+      "type": "string",
+      "description": "テーブルの詳細な説明"
+    },
+    "columns": {
+      "type": "array",
+      "description": "テーブルのカラムのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "columnName": {
+            "type": "string",
+            "description": "カラム名（物理名、スネークケース）"
+          },
+          "logicalName": {
+            "type": "string",
+            "description": "カラムの論理名（日本語）"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "データ型（PostgreSQL準拠: UUID, VARCHAR, TEXT, INTEGER, BIGINT, BOOLEAN, TIMESTAMP, DATE, NUMERIC, JSONB等）"
+          },
+          "length": {
+            "type": "integer",
+            "description": "データ長（VARCHAR等の場合）"
+          },
+          "precision": {
+            "type": "integer",
+            "description": "精度（NUMERIC型の場合）"
+          },
+          "scale": {
+            "type": "integer",
+            "description": "スケール（NUMERIC型の場合）"
+          },
+          "isPrimaryKey": {
+            "type": "boolean",
+            "description": "主キーであるか",
+            "default": false
+          },
+          "isForeignKey": {
+            "type": "boolean",
+            "description": "外部キーであるか",
+            "default": false
+          },
+          "isNullable": {
+            "type": "boolean",
+            "description": "NULLを許容するか",
+            "default": true
+          },
+          "isUnique": {
+            "type": "boolean",
+            "description": "UNIQUE制約があるか",
+            "default": false
+          },
+          "defaultValue": {
+            "type": "string",
+            "description": "デフォルト値（例: 'NOW()', 'gen_random_uuid()', '0'）"
+          },
+          "description": {
+            "type": "string",
+            "description": "カラムの説明"
+          }
+        },
+        "required": ["columnName", "logicalName", "dataType", "isNullable", "description"]
+      }
+    },
+    "primaryKey": {
+      "type": "object",
+      "description": "主キー定義",
+      "properties": {
+        "constraintName": {
+          "type": "string",
+          "description": "制約名（例: pk_stores）"
+        },
+        "columns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "主キーを構成するカラム名のリスト"
+        }
+      },
+      "required": ["columns"]
+    },
+    "foreignKeys": {
+      "type": "array",
+      "description": "外部キー制約のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "constraintName": {
+            "type": "string",
+            "description": "制約名（例: fk_staff_store_id）"
+          },
+          "columns": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "外部キーカラムのリスト"
+          },
+          "referencedTable": {
+            "type": "string",
+            "description": "参照先テーブル名"
+          },
+          "referencedColumns": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "参照先カラムのリスト"
+          },
+          "onDelete": {
+            "type": "string",
+            "enum": ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION"],
+            "description": "ON DELETE時の動作"
+          },
+          "onUpdate": {
+            "type": "string",
+            "enum": ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION"],
+            "description": "ON UPDATE時の動作",
+            "default": "NO ACTION"
+          }
+        },
+        "required": ["columns", "referencedTable", "referencedColumns", "onDelete"]
+      }
+    },
+    "uniqueKeys": {
+      "type": "array",
+      "description": "UNIQUE制約のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "constraintName": {
+            "type": "string",
+            "description": "制約名（例: uq_staff_email）"
+          },
+          "columns": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "UNIQUE制約を構成するカラムのリスト"
+          }
+        },
+        "required": ["columns"]
+      }
+    },
+    "indexes": {
+      "type": "array",
+      "description": "インデックスのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "indexName": {
+            "type": "string",
+            "description": "インデックス名（例: idx_customers_store_id）"
+          },
+          "columns": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "インデックスを構成するカラムのリスト"
+          },
+          "isUnique": {
+            "type": "boolean",
+            "description": "UNIQUE INDEXか",
+            "default": false
+          },
+          "type": {
+            "type": "string",
+            "enum": ["BTREE", "HASH", "GIN", "GIST"],
+            "description": "インデックスタイプ（PostgreSQL）",
+            "default": "BTREE"
+          },
+          "description": {
+            "type": "string",
+            "description": "インデックスの目的・説明"
+          }
+        },
+        "required": ["indexName", "columns"]
+      }
+    },
+    "checkConstraints": {
+      "type": "array",
+      "description": "CHECK制約のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "constraintName": {
+            "type": "string",
+            "description": "制約名（例: chk_weight_positive）"
+          },
+          "expression": {
+            "type": "string",
+            "description": "CHECK制約の式（例: weight > 0）"
+          },
+          "description": {
+            "type": "string",
+            "description": "制約の説明"
+          }
+        },
+        "required": ["constraintName", "expression"]
+      }
+    },
+    "tenantIsolation": {
+      "type": "object",
+      "description": "このテーブルのテナント分離設定",
+      "properties": {
+        "isMultiTenant": {
+          "type": "boolean",
+          "description": "このテーブルがマルチテナント対応か",
+          "default": true
+        },
+        "tenantColumn": {
+          "type": "string",
+          "description": "テナントIDを格納するカラム名（例: store_id）"
+        },
+        "rowLevelSecurity": {
+          "type": "boolean",
+          "description": "Row Level Security (RLS)を使用するか",
+          "default": false
+        },
+        "description": {
+          "type": "string",
+          "description": "テナント分離の実装方法の説明"
+        }
+      },
+      "required": ["isMultiTenant"]
+    },
+    "securityConsiderations": {
+      "type": "array",
+      "description": "このテーブルのセキュリティ考慮事項",
+      "items": {
+        "type": "object",
+        "properties": {
+          "column": {
+            "type": "string",
+            "description": "対象カラム名（テーブル全体の場合は省略可）"
+          },
+          "concern": {
+            "type": "string",
+            "description": "セキュリティ上の懸念事項（例: 個人情報、機密情報、パスワード）"
+          },
+          "mitigation": {
+            "type": "string",
+            "description": "対策方法（例: ハッシュ化、暗号化、アクセス制御）"
+          }
+        },
+        "required": ["concern", "mitigation"]
+      }
+    },
+    "relatedTables": {
+      "type": "array",
+      "description": "このテーブルが関連するテーブルのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tableName": {
+            "type": "string",
+            "description": "関連テーブル名"
+          },
+          "relationshipType": {
+            "type": "string",
+            "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many", "implicit"],
+            "description": "リレーションシップの種類（implicitは直接的なFKを持たない論理的な関連）"
+          },
+          "description": {
+            "type": "string",
+            "description": "リレーションシップの説明"
+          }
+        },
+        "required": ["tableName", "relationshipType"]
+      }
+    },
+    "prismaModel": {
+      "type": "string",
+      "description": "Prismaモデル名（通常はPascalCaseのテーブル名。例: stores → Store）"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがこのテーブルからPrismaスキーマやマイグレーションを生成する際のヒント。例: 'passwordカラムは必ずbcryptでハッシュ化してください'。"
+    }
+  },
+  "required": ["metadata", "tableName", "logicalName", "description", "columns", "primaryKey"]
+}

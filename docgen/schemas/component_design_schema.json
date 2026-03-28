@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "コンポーネント設計スキーマ",
+  "description": "個々のサービスやモジュールといったコンポーネントの責務、内部構造、インターフェース、依存関係を定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "componentName": {
+      "type": "string",
+      "description": "コンポーネントの名称（例: ユーザー管理サービス）"
+    },
+    "componentId": {
+      "type": "string",
+      "description": "コンポーネントの一意なID（例: LC-001, PC-001など、システム構成スキーマのIDと連携）",
+      "pattern": "^(lc|pc)-\\d{3}$"
+    },
+    "description": {
+      "type": "string",
+      "description": "コンポーネントの概要説明"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Service",
+        "Module",
+        "Library",
+        "Database",
+        "Gateway",
+        "ExternalSystem"
+      ],
+      "description": "コンポーネントの種類"
+    },
+    "responsibilities": {
+      "type": "array",
+      "description": "コンポーネントの主な責務",
+      "items": { "type": "string" }
+    },
+    "internalStructure": {
+      "type": "string",
+      "description": "コンポーネント内部の構造や主要なモジュール、クラス構成などを記述（Mermaidなどでの図示も可能）"
+    },
+    "interfaces": {
+      "type": "array",
+      "description": "コンポーネントが提供する、または利用するインターフェースのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "interfaceName": {
+            "type": "string",
+            "description": "インターフェースの名称（例: ユーザー登録API、商品検索メソッド）"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["API", "Method", "Event", "MessageQueue"],
+            "description": "インターフェースの種類"
+          },
+          "description": {
+            "type": "string",
+            "description": "インターフェースの概要説明"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "description": { "type": "string" },
+                "required": { "type": "boolean" }
+              },
+              "required": ["name", "type"]
+            }
+          },
+          "returns": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "description": { "type": "string" }
+            },
+            "required": ["type"]
+          },
+          "relatedApiSpecId": {
+            "type": "string",
+            "description": "関連するAPI仕様スキーマのID（APIタイプの場合）"
+          }
+        },
+        "required": ["interfaceName", "type", "description"]
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "コンポーネントが依存する他のコンポーネントや外部サービスのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dependentComponentId": {
+            "type": "string",
+            "description": "依存するコンポーネントのID（システム構成スキーマのIDと連携）",
+            "pattern": "^(lc|pc)-\\ßd{3}$"
+          },
+          "dependencyType": {
+            "type": "string",
+            "enum": [
+              "API Call",
+              "Database Access",
+              "Message Queue",
+              "Library Use",
+              "External Service"
+            ],
+            "description": "依存関係の種類"
+          },
+          "description": {
+            "type": "string",
+            "description": "依存関係の説明"
+          }
+        },
+        "required": ["dependentComponentId", "dependencyType"]
+      }
+    },
+    "componentDiagramMermaid": {
+      "type": "string",
+      "description": "コンポーネント内部の構造や依存関係をMermaid記法で記述した図"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIへの実装ヒント。例: 'ユーザー管理サービスの実装には、`bcrypt`ライブラリを使ってパスワードをハッシュ化してください'"
+    }
+  },
+  "required": [
+    "metadata",
+    "componentName",
+    "componentId",
+    "description",
+    "type",
+    "responsibilities"
+  ]
+}

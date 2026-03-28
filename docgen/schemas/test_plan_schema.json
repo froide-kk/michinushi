@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "テスト計画スキーマ",
+  "description": "テスト全体の目的、範囲、アプローチ、スケジュール、リソース、リスクを定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "testPlanName": {
+      "type": "string",
+      "description": "テスト計画の名称"
+    },
+    "testPlanId": {
+      "type": "string",
+      "description": "テスト計画の一意なID",
+      "pattern": "^TP-\\d{3}$"
+    },
+    "version": {
+      "type": "string",
+      "description": "テスト計画のバージョン"
+    },
+    "scope": {
+      "type": "object",
+      "description": "テストの範囲",
+      "properties": {
+        "inScope": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "テスト対象範囲"
+        },
+        "outOfScope": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "テスト対象外範囲"
+        }
+      },
+      "required": ["inScope", "outOfScope"]
+    },
+    "objectives": {
+      "type": "array",
+      "description": "テストの目的",
+      "items": { "type": "string" }
+    },
+    "approach": {
+      "type": "string",
+      "description": "テストのアプローチや戦略"
+    },
+    "testPhases": {
+      "type": "array",
+      "description": "テストフェーズのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "phaseName": {
+            "type": "string",
+            "description": "フェーズ名（例: 単体テスト、結合テスト、システムテスト、受け入れテスト）"
+          },
+          "description": { "type": "string", "description": "フェーズの概要" },
+          "entryCriteria": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "フェーズ開始条件"
+          },
+          "exitCriteria": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "フェーズ終了条件"
+          },
+          "testTypes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "実施するテストの種類（例: 機能テスト、性能テスト、セキュリティテスト）"
+          }
+        },
+        "required": ["phaseName", "entryCriteria", "exitCriteria"]
+      }
+    },
+    "schedule": {
+      "type": "object",
+      "description": "テストスケジュール",
+      "properties": {
+        "startDate": {
+          "type": "string",
+          "format": "date",
+          "description": "テスト開始日"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date",
+          "description": "テスト終了日"
+        },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "date": { "type": "string", "format": "date" }
+            },
+            "required": ["name", "date"]
+          }
+        }
+      },
+      "required": ["startDate", "endDate"]
+    },
+    "resources": {
+      "type": "object",
+      "description": "テストリソース",
+      "properties": {
+        "personnel": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "テスト担当者"
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "使用ツール"
+        },
+        "environment": {
+          "type": "string",
+          "description": "テスト環境"
+        }
+      },
+      "required": ["personnel", "tools", "environment"]
+    },
+    "risks": {
+      "type": "array",
+      "description": "テストに関するリスク",
+      "items": {
+        "type": "object",
+        "properties": {
+          "riskName": { "type": "string" },
+          "mitigation": { "type": "string" }
+        },
+        "required": ["riskName", "mitigation"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがテスト計画を理解し、テストコードを生成する際の具体的な指示やヒント。例: 'JestとReact Testing Libraryを使用してください'。"
+    }
+  },
+  "required": [
+    "metadata",
+    "testPlanName",
+    "testPlanId",
+    "version",
+    "scope",
+    "objectives",
+    "approach",
+    "testPhases",
+    "schedule",
+    "resources"
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "テスト仕様スキーマ",
+  "description": "個別のテストケース（テスト観点、実行手順、入力データ、期待結果）を定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "testSpecName": {
+      "type": "string",
+      "description": "テスト仕様の名称（例: ユーザー登録機能テスト）"
+    },
+    "testSpecId": {
+      "type": "string",
+      "description": "テスト仕様の一意なID",
+      "pattern": "^TS-[A-Z]{3}-\\d{3}$"
+    },
+    "version": {
+      "type": "string",
+      "description": "テスト仕様のバージョン"
+    },
+    "targetFeature": {
+      "type": "string",
+      "description": "テスト対象の機能やモジュール"
+    },
+    "testCases": {
+      "type": "array",
+      "description": "テストケースのリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "testCaseId": {
+            "type": "string",
+            "description": "テストケースの一意なID",
+            "pattern": "^TC-\\d{4}$"
+          },
+          "testCaseName": {
+            "type": "string",
+            "description": "テストケースの名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "テストケースの概要"
+          },
+          "preconditions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "テスト実行前の前提条件"
+          },
+          "testSteps": {
+            "type": "array",
+            "description": "テスト実行手順",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stepNumber": { "type": "integer" },
+                "action": { "type": "string", "description": "操作内容" },
+                "inputData": { "type": "string", "description": "入力データ" },
+                "expectedResult": {
+                  "type": "string",
+                  "description": "期待される結果"
+                }
+              },
+              "required": ["stepNumber", "action", "expectedResult"]
+            }
+          },
+          "relatedRequirementIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "関連する要件定義ID（例: FR-STORY-0101）"
+          },
+          "relatedUserJourneyIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "関連するユーザージャーニーID（例: UJ-01）"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["High", "Medium", "Low"],
+            "description": "テストケースの優先度"
+          }
+        },
+        "required": [
+          "testCaseId",
+          "testCaseName",
+          "testSteps",
+          "expectedResult"
+        ]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがテストケースを理解し、テストコードを生成する際の具体的な指示やヒント。例: 'モックデータはfakerライブラリを使用して生成してください'。"
+    }
+  },
+  "required": [
+    "metadata",
+    "testSpecName",
+    "testSpecId",
+    "version",
+    "targetFeature",
+    "testCases"
+  ]
+}

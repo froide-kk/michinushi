@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "要件定義書スキーマ",
+  "description": "システム開発におけるビジネス要求、機能要件、非機能要件などを網羅的に定義するためのスキーマ。IPAの要件定義ガイドラインを参考に、より実践的な項目を追加しています。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "projectOverview": {
+      "description": "プロジェクトの背景、目的、スコープ（対象範囲）を定義します。",
+      "type": "object",
+      "properties": {
+        "projectName": {
+          "type": "string",
+          "description": "プロジェクトの正式名称。"
+        },
+        "background": {
+          "type": "string",
+          "description": "プロジェクトが立ち上がった経緯や、解決したい課題。"
+        },
+        "businessCase": {
+          "description": "プロジェクトがビジネスにどう貢献するのかを定義します。",
+          "type": "object",
+          "properties": {
+            "businessObjectives": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "このプロジェクトで達成したいビジネス上の目標。"
+            },
+            "investmentEffect": {
+              "type": "object",
+              "properties": {
+                "quantitative": {
+                  "type": "string",
+                  "description": "定量的な投資対効果（例: コスト削減額、売上向上額）。"
+                },
+                "qualitative": {
+                  "type": "string",
+                  "description": "定性的な投資対効果（例: 顧客満足度の向上、ブランドイメージ向上）。"
+                }
+              }
+            }
+          }
+        },
+        "scope": {
+          "description": "システムの開発範囲を定義します。",
+          "type": "object",
+          "properties": {
+            "in": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "開発範囲に「含まれる」機能や要素。"
+            },
+            "out": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "開発範囲に「含まれない」機能や要素。"
+            }
+          }
+        }
+      },
+      "required": ["projectName", "background", "businessCase", "scope"]
+    },
+    "stakeholders": {
+      "description": "プロジェクトに関わる主要な関係者とその役割を定義します。",
+      "type": "array",
+      "items": { "$ref": "#/definitions/stakeholder" }
+    },
+    "functionalRequirements": {
+      "description": "システムが提供すべき機能を、EPIC（大きな機能単位）とユーザーストーリーの階層で定義します。",
+      "type": "array",
+      "items": { "$ref": "#/definitions/functionalRequirementEpic" }
+    },
+    "nonFunctionalRequirements": {
+      "description": "システムの品質特性（性能、セキュリティなど）に関する要件を定義します。",
+      "type": "array",
+      "items": { "$ref": "#/definitions/nonFunctionalRequirementCategory" }
+    },
+    "constraintsAndAssumptions": {
+      "description": "プロジェクトの制約事項（技術選定、予算など）と、前提条件を定義します。",
+      "type": "object",
+      "properties": {
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "assumptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "interfaceRequirements": {
+      "description": "連携する外部システムやAPIの仕様の概要を定義します。",
+      "type": "array",
+      "items": { "$ref": "#/definitions/interfaceRequirement" }
+    },
+    "glossary": {
+      "description": "プロジェクト内で使用される専門用語やビジネス用語の定義を統一します。",
+      "type": "array",
+      "items": { "$ref": "#/definitions/glossaryItem" }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIが要件定義を理解し、実装する際の具体的な指示やヒント。例: '認証機能はJWTトークンを使用してください'。"
+    }
+  },
+  "required": [
+    "metadata",
+    "projectOverview",
+    "stakeholders",
+    "functionalRequirements",
+    "nonFunctionalRequirements",
+    "constraintsAndAssumptions"
+  ],
+  "definitions": {
+    "stakeholder": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "関係者の氏名や部署名。" },
+        "role": {
+          "type": "string",
+          "description": "プロジェクトにおける役割。"
+        }
+      },
+      "required": ["name", "role"]
+    },
+    "functionalRequirementEpic": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "EPICの一意なID。",
+          "pattern": "^EPIC-[A-Z-]+$"
+        },
+        "title": { "type": "string", "description": "EPICのタイトル。" },
+        "description": { "type": "string", "description": "EPICの概要説明。" },
+        "userStories": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/userStory" }
+        }
+      },
+      "required": ["id", "title", "userStories"]
+    },
+    "userStory": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ユーザーストーリーの一意なID。",
+          "pattern": "^US-[A-Z]+(-[A-Z]+)*-[0-9]{3}$"
+        },
+        "title": {
+          "type": "string",
+          "description": "ユーザーストーリーの要約。"
+        },
+        "asA": { "type": "string", "description": "ユーザー種別 (As a ...)。" },
+        "iWantTo": {
+          "type": "string",
+          "description": "実現したいこと (I want to ...)。"
+        },
+        "soThat": {
+          "type": "string",
+          "description": "それによって得られる価値 (so that ...)。"
+        },
+        "priority": {
+          "enum": ["High", "Medium", "Low"],
+          "description": "優先度。"
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "このストーリーが完了したと見なすための受け入れ基準。"
+        }
+      },
+      "required": ["id", "title", "asA", "iWantTo"]
+    },
+    "nonFunctionalRequirementCategory": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "非機能要件のカテゴリ。",
+          "enum": [
+            "Availability",
+            "Performance",
+            "Scalability",
+            "Operability",
+            "Maintainability",
+            "Migration",
+            "Security",
+            "Usability",
+            "Interoperability",
+            "Authorization"
+          ]
+        },
+        "requirements": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/nonFunctionalRequirementItem" }
+        }
+      },
+      "required": ["category", "requirements"]
+    },
+    "nonFunctionalRequirementItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "非機能要件の一意なID。",
+          "pattern": "^NF-[A-Z]+-[0-9]{3}$"
+        },
+        "requirement": {
+          "type": "string",
+          "description": "具体的な要件内容。"
+        },
+        "metric": {
+          "type": "string",
+          "description": "要件の達成度を測るための測定基準。"
+        },
+        "target": {
+          "type": "string",
+          "description": "測定基準が達成すべき目標値。"
+        }
+      },
+      "required": ["id", "requirement", "metric", "target"]
+    },
+    "interfaceRequirement": {
+      "type": "object",
+      "properties": {
+        "systemName": { "type": "string" },
+        "type": { "enum": ["API", "File", "Database"] },
+        "description": { "type": "string" }
+      },
+      "required": ["systemName", "type"]
+    },
+    "glossaryItem": {
+      "type": "object",
+      "properties": {
+        "term": { "type": "string", "description": "用語名。" },
+        "definition": { "type": "string", "description": "用語の定義。" }
+      },
+      "required": ["term", "definition"]
+    }
+  }
+}

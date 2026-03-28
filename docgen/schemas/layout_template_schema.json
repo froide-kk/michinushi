@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "レイアウトテンプレートスキーマ",
+  "description": "再利用可能な画面レイアウトのテンプレートを定義するためのスキーマです。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "templateId": {
+      "type": "string",
+      "description": "レイアウトテンプレートの一意な識別子（例: tpl-main）。"
+    },
+    "templateName": {
+      "type": "string",
+      "description": "レイアウトテンプレートの名称。"
+    },
+    "description": {
+      "type": "string",
+      "description": "レイアウトの簡単な説明。"
+    },
+    "areas": {
+      "type": "array",
+      "description": "レイアウト内のプレースホルダーエリア名のリスト（例: header, main-content, footer）。",
+      "items": {
+        "type": "string"
+      }
+    },
+    "layoutDiagram": {
+      "type": "string",
+      "description": "（任意）レイアウト構造を可視化するASCIIまたはMermaid図。"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがレイアウトテンプレートを実装する際の具体的な指示やヒント。例: 'レスポンシブデザインに対応し、モバイルではサイドバーを非表示にしてください'。"
+    }
+  },
+  "required": ["metadata", "templateId", "templateName", "areas"]
+}

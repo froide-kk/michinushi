@@ -1,0 +1,261 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UI コンポーネント スキーマ",
+  "description": "共通UIコンポーネント（Button, Input, Modal等）の設計を定義するためのスキーマ。Radix UI + Panda CSS での実装を前提とします。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "componentId": {
+      "type": "string",
+      "description": "コンポーネントの一意な識別子（例: UI-BTN-001）。",
+      "pattern": "^UI-[A-Z]+-\\d{3}$"
+    },
+    "componentName": {
+      "type": "string",
+      "description": "コンポーネントの名称（例: Button, Input, Modal）。"
+    },
+    "description": {
+      "type": "string",
+      "description": "コンポーネントの目的と使用場面の説明。"
+    },
+    "filePath": {
+      "type": "string",
+      "description": "実装ファイルのパス（例: packages/ui-components/src/Button/Button.tsx）。"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["form", "layout", "navigation", "feedback", "data-display", "overlay"],
+      "description": "コンポーネントのカテゴリ。"
+    },
+    "radixPrimitive": {
+      "type": "object",
+      "description": "使用するRadix UIプリミティブの情報。",
+      "properties": {
+        "package": {
+          "type": ["string", "null"],
+          "description": "Radix UIパッケージ名（例: @radix-ui/react-dialog）。未使用の場合はnull。"
+        },
+        "primitive": {
+          "type": ["string", "null"],
+          "description": "使用するプリミティブ名（例: Dialog, Select）。未使用の場合はnull。"
+        },
+        "usage": {
+          "type": "string",
+          "description": "プリミティブの使用方法の説明。"
+        }
+      }
+    },
+    "props": {
+      "type": "array",
+      "description": "コンポーネントのProps定義。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Prop名。"
+          },
+          "type": {
+            "type": "string",
+            "description": "TypeScript型（例: string, boolean, ReactNode）。"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "必須かどうか。"
+          },
+          "default": {
+            "type": "string",
+            "description": "デフォルト値。"
+          },
+          "description": {
+            "type": "string",
+            "description": "Propの説明。"
+          }
+        },
+        "required": ["name", "type", "required"]
+      }
+    },
+    "variants": {
+      "type": "object",
+      "description": "コンポーネントのバリアント定義（Panda CSS cva/recipes用）。",
+      "properties": {
+        "base": {
+          "type": "string",
+          "description": "ベーススタイルの説明。"
+        },
+        "variants": {
+          "type": "array",
+          "description": "バリアントの一覧。",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "バリアント名（例: size, variant, colorScheme）。"
+              },
+              "values": {
+                "type": "array",
+                "description": "バリアントの値。",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "description": "値（例: sm, md, lg）。"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "この値の説明。"
+                    }
+                  },
+                  "required": ["value"]
+                }
+              },
+              "default": {
+                "type": "string",
+                "description": "デフォルト値。"
+              }
+            },
+            "required": ["name", "values"]
+          }
+        },
+        "compoundVariants": {
+          "type": "array",
+          "description": "複合バリアント（複数のバリアントの組み合わせ）。",
+          "items": {
+            "type": "object",
+            "properties": {
+              "conditions": {
+                "type": "object",
+                "description": "適用条件（バリアント名と値のマップ）。"
+              },
+              "styles": {
+                "type": "string",
+                "description": "適用されるスタイルの説明。"
+              }
+            },
+            "required": ["conditions", "styles"]
+          }
+        }
+      }
+    },
+    "states": {
+      "type": "array",
+      "description": "コンポーネントの状態。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "状態名（例: hover, focus, disabled, loading）。"
+          },
+          "description": {
+            "type": "string",
+            "description": "状態の説明。"
+          },
+          "styles": {
+            "type": "string",
+            "description": "この状態でのスタイル変化。"
+          }
+        },
+        "required": ["name", "description"]
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "コンポーネントが発火するイベント。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "イベント名（例: onClick, onChange, onOpenChange）。"
+          },
+          "type": {
+            "type": "string",
+            "description": "イベントハンドラの型（例: (e: MouseEvent) => void）。"
+          },
+          "description": {
+            "type": "string",
+            "description": "イベントの説明。"
+          }
+        },
+        "required": ["name", "type"]
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "description": "アクセシビリティ対応。",
+      "properties": {
+        "ariaAttributes": {
+          "type": "array",
+          "description": "使用するARIA属性。",
+          "items": {
+            "type": "object",
+            "properties": {
+              "attribute": {
+                "type": "string",
+                "description": "ARIA属性名。"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "属性の目的。"
+              }
+            },
+            "required": ["attribute", "purpose"]
+          }
+        },
+        "keyboardNavigation": {
+          "type": "string",
+          "description": "キーボードナビゲーションの説明。"
+        },
+        "screenReaderSupport": {
+          "type": "string",
+          "description": "スクリーンリーダー対応の説明。"
+        }
+      }
+    },
+    "usageExamples": {
+      "type": "array",
+      "description": "使用例。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "例のタイトル。"
+          },
+          "code": {
+            "type": "string",
+            "description": "JSX/TSXコード例。"
+          },
+          "description": {
+            "type": "string",
+            "description": "例の説明。"
+          }
+        },
+        "required": ["title", "code"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがコンポーネントを実装する際の具体的な指示やヒント。"
+    }
+  },
+  "required": [
+    "metadata",
+    "componentId",
+    "componentName",
+    "description",
+    "filePath",
+    "category",
+    "props"
+  ]
+}

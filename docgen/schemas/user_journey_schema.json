@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ユーザージャーニー定義スキーマ",
+  "description": "特定のユーザーが目標を達成するまでの一連のステップと感情の動きを可視化するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "common_metadata_schema.json"
+    },
+    "journeyName": {
+      "type": "string",
+      "description": "ユーザージャーニーの名称"
+    },
+    "personaId": {
+      "type": "string",
+      "description": "このジャーニーの対象となるペルソナのID",
+      "pattern": "^PERSONA-\\d{3}$"
+    },
+    "scenario": {
+      "type": "string",
+      "description": "ユーザーが置かれている状況や背景"
+    },
+    "steps": {
+      "type": "array",
+      "description": "ジャーニーの各ステップ",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stepName": { "type": "string", "description": "ステップの名称" },
+          "userAction": { "type": "string", "description": "ユーザーの行動" },
+          "systemResponse": {
+            "type": "string",
+            "description": "システムからの応答"
+          },
+          "emotion": {
+            "type": "string",
+            "enum": ["Positive", "Neutral", "Negative"],
+            "description": "ユーザーの感情"
+          },
+          "painPoint": {
+            "type": "string",
+            "description": "このステップでユーザーが感じる課題"
+          },
+          "opportunity": {
+            "type": "string",
+            "description": "このステップでの改善機会やビジネスチャンス"
+          },
+          "relatedFunctionalRequirementIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "関連する機能要件のID（例: FR-STORY-0101）"
+          },
+          "mockupReference": {
+            "type": "string",
+            "format": "uri",
+            "description": "関連するワイヤーフレームやモックアップへのURL"
+          }
+        },
+        "required": ["stepName", "userAction", "systemResponse"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがユーザージャーニーを理解し、体験を最適化する際の具体的な指示やヒント。例: 'ペインポイントを解消する機能を優先的に実装してください'。"
+    }
+  },
+  "required": ["metadata", "journeyName", "personaId", "scenario", "steps"]
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feature Design Schema",
+  "description": "A schema for defining the detailed design and behavior of a specific software feature.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL to the JSON schema for validation."
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "Common metadata for the document."
+    },
+    "featureId": {
+      "type": "string",
+      "description": "A unique identifier for the feature (e.g., FEAT-001)."
+    },
+    "featureName": {
+      "type": "string",
+      "description": "The name of the feature."
+    },
+    "description": {
+      "type": "string",
+      "description": "A high-level overview of the feature and its purpose."
+    },
+    "relatedRequirements": {
+      "type": "array",
+      "description": "A list of requirement IDs that this feature addresses.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "affectedComponents": {
+      "type": "array",
+      "description": "この機能の実装に関わるコンポーネントIDのリスト。",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relatedScreens": {
+      "type": "array",
+      "description": "この機能に関連する画面IDのリスト。",
+      "items": {
+        "type": "string"
+      }
+    },
+    "behavioralLogic": {
+      "type": "object",
+      "description": "Detailed description of the feature's behavior.",
+      "properties": {
+        "preconditions": {
+          "type": "array",
+          "description": "Conditions that must be true before the feature's logic is executed.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "description": "A sequence of steps describing the interaction between the user and the system, or between system components.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step": {
+                "type": "integer"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": ["step", "description"]
+          }
+        },
+        "postconditions": {
+          "type": "array",
+          "description": "Conditions that must be true after the feature's logic is successfully executed.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["steps"]
+    },
+    "sequenceDiagramMermaid": {
+      "type": "string",
+      "description": "A Mermaid sequence diagram visualizing the interactions between components for this feature."
+    },
+    "errorHandling": {
+      "type": "array",
+      "description": "How different error scenarios are handled.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "errorCondition": {
+            "type": "string"
+          },
+          "handlingProcess": {
+            "type": "string"
+          }
+        },
+        "required": ["errorCondition", "handlingProcess"]
+      }
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIがこの機能を実装する際の具体的な指示やヒント。例: 'エラー処理では適切なHTTPステータスコードを返してください'。"
+    }
+  },
+  "required": [
+    "metadata",
+    "featureId",
+    "featureName",
+    "description",
+    "relatedRequirements",
+    "affectedComponents",
+    "behavioralLogic",
+    "sequenceDiagramMermaid"
+  ]
+}

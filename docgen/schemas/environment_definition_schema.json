@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "環境定義スキーマ (v2)",
+  "description": "システムがデプロイされる各環境（開発、ステージング、本番など）の設定とインフラ情報を定義するためのスキーマ。",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "description": "共通メタデータ（別スキーマを参照）",
+      "$ref": "common_metadata_schema.json"
+    },
+    "environments": {
+      "type": "array",
+      "description": "定義される環境のリスト",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "環境名（例: development, staging, production）",
+            "enum": ["development", "staging", "production", "test", "local"]
+          },
+          "description": {
+            "type": "string",
+            "description": "環境の概要説明"
+          },
+          "baseUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "この環境のベースURL"
+          },
+          "platform": {
+            "type": "object",
+            "description": "環境が稼働するインフラストラクチャとランタイム",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "enum": ["aws", "gcp", "azure", "on-premise", "docker", "other"],
+                "description": "クラウドプロバイダーや主要インフラ"
+              },
+              "region": {
+                "type": "string",
+                "description": "主要なリージョン (例: us-east-1, asia-northeast1)"
+              },
+              "runtime": {
+                "type": "string",
+                "enum": ["kubernetes", "serverless", "vm", "container-app", "other"],
+                "description": "実行環境のタイプ"
+              },
+              "orchestration": {
+                "type": "string",
+                "description": "実行サービス詳細 (例: EKS, GKE, ECS, Cloud Run, Lambda, App Service)"
+              }
+            },
+            "required": ["provider", "runtime"]
+          },
+          "apiEndpoints": {
+            "type": "object",
+            "description": "この環境で使用されるAPIエンドポイントのリスト（抽象名: URL）",
+            "additionalProperties": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "databaseConfig": {
+            "type": "object",
+            "description": "データベース接続設定（ホスト情報など）",
+            "properties": {
+              "host": { "type": "string" },
+              "port": { "type": "integer" },
+              "username": { "type": "string" },
+              "database": { "type": "string" }
+            },
+            "required": ["host", "port", "username", "database"]
+          },
+          "requiredConfigs": {
+            "description": "この環境で必要となる主要な設定値（秘密鍵は名前を抽象化する）",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "設定の名称（例: LOG_LEVEL, Stripe API Secret）"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "この設定が何に使われるか"
+                },
+                "isSecret": {
+                  "type": "boolean",
+                  "description": "これが秘密鍵（APIキー, パスワード）であるか"
+                },
+                "exampleKeyName": {
+                  "type": "string",
+                  "description": "（非秘密情報のみ）実際の環境変数名の例"
+                }
+              },
+              "required": ["name", "description", "isSecret"]
+            }
+          },
+
+          "securityConsiderations": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "この環境特有のセキュリティに関する考慮事項"
+          }
+        },
+        "required": ["name", "baseUrl", "platform"]
+      }
+    }
+  },
+  "required": ["metadata", "environments"]
+}

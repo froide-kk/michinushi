@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "画面設計スキーマ",
+  "description": "個別の画面設計を定義するためのスキーマ。レイアウトテンプレートを参照し、UIコンポーネントを配置します。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "検証用のJSONスキーマへのURL。"
+    },
+    "metadata": {
+      "$ref": "common_metadata_schema.json",
+      "description": "ドキュメントの共通メタデータ。"
+    },
+    "screenId": {
+      "type": "string",
+      "description": "画面の一意な識別子（例: SCR-001）。"
+    },
+    "screenName": {
+      "type": "string",
+      "description": "画面の名称。"
+    },
+    "description": {
+      "type": "string",
+      "description": "画面の目的や機能の概要。"
+    },
+    "relatedFeatures": {
+      "type": "array",
+      "description": "この画面が関連する機能のIDリスト。",
+      "items": {
+        "type": "string"
+      }
+    },
+    "layoutTemplateId": {
+      "type": "string",
+      "description": "使用するレイアウトテンプレートのID。"
+    },
+    "layoutAssignments": {
+      "type": "object",
+      "description": "レイアウトテンプレートの各エリアにUIコンポーネントIDを割り当てます。プロパティ名はエリア名に対応します。",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "uiComponents": {
+      "type": "array",
+      "description": "画面上に配置されるUIコンポーネントの詳細なリスト。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string",
+            "description": "コンポーネントの一意なID。"
+          },
+          "componentType": {
+            "type": "string",
+            "description": "コンポーネントの種類（例: TextField, Button, Table）。"
+          },
+          "label": {
+            "type": "string",
+            "description": "コンポーネントの表示ラベル。"
+          },
+          "description": {
+            "type": "string",
+            "description": "コンポーネントの役割や振る舞いの説明。"
+          },
+          "properties": {
+            "type": "object",
+            "description": "プレースホルダーや初期値などの追加プロパティ。"
+          },
+          "events": {
+            "type": "array",
+            "description": "このコンポーネントがトリガーするイベントのリスト。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventName": {
+                  "type": "string",
+                  "description": "イベント名（例: onClick, onChange）。"
+                },
+                "actionDescription": {
+                  "type": "string",
+                  "description": "イベントによって実行されるアクションの説明。"
+                }
+              },
+              "required": ["eventName", "actionDescription"]
+            }
+          }
+        },
+        "required": ["componentId", "componentType"]
+      }
+    },
+    "wireframeDiagram": {
+      "type": "string",
+      "description": "（任意）画面のワイヤーフレームを可視化するASCIIまたはMermaid図。"
+    },
+    "aiHint": {
+      "type": "string",
+      "description": "AIへの実装ヒント。例: 'レスポンシブデザインに対応してください'"
+    }
+  },
+  "required": [
+    "metadata",
+    "screenId",
+    "screenName",
+    "layoutTemplateId",
+    "layoutAssignments",
+    "uiComponents"
+  ]
+}
