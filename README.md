@@ -74,9 +74,17 @@ github:
   baseBranch: main     # PR のベースブランチ
 ```
 
-### 3. GitHub CLI のスコープ確認
+### 3. GitHub CLI のセットアップ
 
 ```bash
+# インストール
+brew install gh          # macOS
+# その他: https://cli.github.com/
+
+# 認証
+gh auth login
+
+# スコープ確認
 gh auth status
 # 必要なスコープ: repo, read:project, project, read:org
 
