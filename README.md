@@ -8,14 +8,90 @@
 ## Overview
 
 Michinushi は [Claude Code](https://claude.ai/code) 向けの Skill コレクションです。
-`/run` が GitHub Issue からタスクを読み取り、状況に応じて専門 Skill に作業を委譲する AI 駆動開発フレームワークを提供します。
+GitHub Project と連携し、Issue ベースのタスク管理から設計・実装・テスト・レビューまでを AI が一貫して遂行する開発フレームワークを提供します。
+
+### GitHub Project 連携
+
+Michinushi は [GitHub Projects (V2)](https://docs.github.com/en/issues/planning-and-tracking-with-projects) をタスク管理の中心に据えています。
 
 ```
-User ─── /run #33 ─┬─→ architect     (設計)
-                    ├─→ coder         (実装)
-                    ├─→ unit-tester   (テスト)
-                    ├─→ tech-reviewer (レビュー)
-                    └─→ ...
+GitHub Project
+  │
+  ├─ Issue #33 (status: Todo)
+  ├─ Issue #34 (status: In Progress)
+  └─ Issue #35 (status: In Review)
+        │
+        └─ PR #91 (Closes #35)
+```
+
+**ステータスフロー**:
+```
+Triage → Todo → In Progress → In Review → Done
+```
+
+- `/run #33` — Issue を読み取り、計画を立て、専門 Skill に作業を委譲。完了後に PR を作成し、ステータスを `In Review` に更新
+- `/run 自然言語指示` — Issue が存在しない場合は自動作成し、Project に追加してから作業開始
+- `/todo` — Project 全体を PM 視点で分析。要判断・進行中・次の候補・保留中に分類して報告
+
+### 開発フロー
+
+```
+         /run #33
+            │
+   ┌────────┴────────┐
+   │   計画・設計     │  architect, docgen
+   ├─────────────────┤
+   │   実装          │  coder, ui-designer
+   ├─────────────────┤
+   │   テスト        │  unit-tester, e2e-tester, security-tester
+   ├─────────────────┤
+   │   自己レビュー   │  tech-reviewer, biz-reviewer
+   ├─────────────────┤
+   │   PR 作成       │  Closes #33, status → In Review
+   └─────────────────┘
+```
+
+各工程で必要な Skill だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `/run` が行います。
+
+## Installation
+
+### 1. Skills の導入
+
+```bash
+cd your-project
+git subtree add --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
+```
+
+### 2. プロジェクト設定
+
+`.claude/config/project.yml` を作成:
+
+```yaml
+github:
+  owner: your-org
+  repo: your-repo
+  projectNumber: 1    # GitHub Project の番号
+  baseBranch: main     # PR のベースブランチ
+```
+
+### 3. GitHub CLI のスコープ確認
+
+```bash
+gh auth status
+# 必要なスコープ: repo, read:project, project, read:org
+
+# 不足している場合
+gh auth refresh -h github.com -s repo,read:project,project,read:org
+```
+
+### 4. 初期セットアップ
+
+Claude Code で `/setup` を実行。リポジトリの状態を自動検出し、不足している設定をガイドします。
+
+### Skills の更新
+
+```bash
+git subtree pull --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
 ```
 
 ## Skills
@@ -24,7 +100,7 @@ User ─── /run #33 ─┬─→ architect     (設計)
 
 | Skill | Command | Description |
 |-------|---------|-------------|
-| **run** | `/run #33` `/run 自然言語指示` | タスクの理解・計画・専門Skillへの委譲・進捗管理 |
+| **run** | `/run #33` `/run 自然言語指示` | タスクの理解・計画・専門 Skill への委譲・進捗管理 |
 | **todo** | `/todo` | GitHub Project のタスク一覧を PM 視点で構造化して報告 |
 | **setup** | `/setup` | AI 駆動開発の初期セットアップ。リポジトリ状態を自動検出 |
 
@@ -36,10 +112,10 @@ User ─── /run #33 ─┬─→ architect     (設計)
 | **docgen** | 設計書 | JSON Schema 準拠の YAML 設計書を生成・更新 |
 | **coder** | 実装 | 設計書・既存パターンに忠実なコード生成 |
 | **ui-designer** | UI/UX | コンポーネント設計・スタイリング・インタラクション設計 |
-| **unit-tester** | テスト | Server Action の入力検証・権限制御・ビジネスロジックのテスト |
+| **unit-tester** | テスト | 入力検証・権限制御・ビジネスロジックのユニットテスト |
 | **e2e-tester** | E2Eテスト | ユーザーの業務フロー全体をブラウザ上で検証 |
 | **security-tester** | セキュリティ | OWASP Top 10 ベースのセキュリティテスト |
-| **tech-reviewer** | 技術レビュー | セキュリティ・型安全・エラーハンドリング・パフォーマンスをチェック |
+| **tech-reviewer** | 技術レビュー | セキュリティ・型安全・パフォーマンスをチェック |
 | **biz-reviewer** | 業務レビュー | ビジネスロジックの正しさ・要件との整合性をチェック |
 
 ## Architecture
@@ -69,61 +145,11 @@ User ─── /run #33 ─┬─→ architect     (設計)
 
 Skills はどのプロジェクトでも使える汎用的な指示を記述し、プロジェクト固有の設定は `.claude/config/` に分離します。
 
-## Installation
-
-### 既存プロジェクトに導入（推奨）
-
-```bash
-cd your-project
-git subtree add --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
-```
-
-これで `.claude/skills/` に全 Skill が配置されます。`/setup` を実行して初期セットアップを進めてください。
-
-### Skills の更新
-
-```bash
-git subtree pull --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
-```
-
-### 開発元リポジトリからの同期（メンテナ向け）
-
-サービス開発と Skills 開発を同時に行うリポジトリから、Skills の変更を Michinushi に push する場合:
-
-```bash
-# リモート追加（初回のみ）
-git remote add michinushi git@github.com:froide-kk/michinushi.git
-
-# Skills の変更を push
-git subtree push --prefix=.claude/skills michinushi main
-```
-
-## Contributing
-
-1. このリポジトリを Fork
-2. Skill を追加・修正
-3. Pull Request を作成
-
-各 Skill は汎用的に設計してください。プロジェクト固有のロジックは `.claude/config/` に分離します。
-
-## Configuration
-
-Skills が参照するプロジェクト固有の設定ファイルを `.claude/config/` に配置します。
-
-### project.yml (必須)
-
-```yaml
-github:
-  owner: your-org
-  repo: your-repo
-  projectNumber: 1
-  baseBranch: main
-```
-
-### Optional config files
+### Config files
 
 | File | Used by | Description |
 |------|---------|-------------|
+| `project.yml` | run, todo | GitHub 連携情報（必須） |
 | `tech.yml` | tech-reviewer | 技術レビューのチェック項目 |
 | `biz.yml` | biz-reviewer | 業務レビューのチェック項目 |
 | `security.yml` | security-tester | セキュリティテストのチェック項目 |
@@ -144,12 +170,12 @@ skills/
 ```yaml
 ---
 name: your-skill
-description: Short description in Japanese + English. Used for auto-matching.
+description: Short description. Used for auto-matching.
 user-invocable: false          # true = user calls directly via /command
 disable-model-invocation: true # true = only invoked by explicit /command
 ---
 
-# Your Skill — タイトル
+# Your Skill — Title
 
 Instructions for Claude when this skill is invoked.
 ```
@@ -165,11 +191,19 @@ Instructions for Claude when this skill is invoked.
 | `argument-hint` | No | Hint for command arguments |
 | `allowed-tools` | No | Restrict available tools |
 
+## Contributing
+
+1. このリポジトリを Fork
+2. Skill を追加・修正
+3. Pull Request を作成
+
+各 Skill は汎用的に設計してください。プロジェクト固有のロジックは `.claude/config/` に分離します。
+
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) CLI or IDE extension
+- [Claude Code](https://claude.ai/code) CLI, desktop app, or IDE extension
 - [GitHub CLI](https://cli.github.com/) (`gh`) with `repo`, `read:project`, `project` scopes
-- A GitHub Project (for `/run` and `/todo`)
+- A [GitHub Project (V2)](https://docs.github.com/en/issues/planning-and-tracking-with-projects) for `/run` and `/todo`
 
 ## License
 
