@@ -5,10 +5,10 @@ Michinushi のメンテナンス手順。
 ## リポジトリ構成
 
 ```
-froide-kk/michinushi          # Skills 公開リポジトリ（public）
-froide-kk/humanlink-karte-system  # 開発元リポジトリ（private）
-  └── .claude/skills/         # ← michinushi と subtree で同期
-  └── .claude/config/         # プロジェクト固有（同期対象外）
+froide-kk/michinushi           # Skills 公開リポジトリ（public）
+<org>/<your-project>           # 開発元リポジトリ（private）
+  └── .claude/skills/          # ← michinushi と subtree で同期
+  └── .claude/config/          # プロジェクト固有（同期対象外）
 ```
 
 ## ブランチ保護
