@@ -9,7 +9,7 @@
     },
     "databaseName": {
       "type": "string",
-      "description": "データベースの名称（例: humanlink_karte_system）"
+      "description": "データベースの名称（例: my_app_production）"
     },
     "description": {
       "type": "string",

@@ -51,7 +51,7 @@ beforeEach(() => resetAllMocks());
 2. 既存テストファイルのパターンを確認
 3. テストケース設計（正常系・異常系・エッジケース）
 4. テスト実装
-5. `pnpm --filter @humanlink/store test` で実行
+5. プロジェクトのテストコマンドで実行
 6. 結果をConductorに報告
 
 ## 出力フォーマット
