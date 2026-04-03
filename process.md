@@ -97,7 +97,7 @@
 
 Conductor は上記フローの **進行管理のみ** を行う。
 
-- Architect の分析結果を読み、必要な工程を特定する
+- Architect の分析結果と判断を読み取り、実行すべき工程を抽出する
 - 各工程で該当エージェントを起動し、結果を受け取る
 - Reviewer の判定に基づき、次の工程に進むか差し戻すかを決める
 - コード・設計書・テストを自分で書かない。レビューを自分でしない
@@ -109,7 +109,7 @@ Conductor は上記フローの **進行管理のみ** を行う。
 典型的なパターン:
 
 - **新機能**: 全工程
-- **バグ修正**: Architect → Coder → Docgen → Tester → Reviewer（Designer 不要なことが多い）
+- **バグ修正**: Architect → Docgen → Reviewer → Coder → Tester → Reviewer（設計書更新不要なら Docgen/設計Reviewer を省略）
 - **リファクタリング**: Coder → Tester → Reviewer（設計フェーズ不要）
 - **設計変更のみ**: Architect → Docgen → Reviewer（実装フェーズ不要）
 - **typo修正**: Coder → Tester（レビュー不要）
