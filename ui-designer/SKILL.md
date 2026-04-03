@@ -1,6 +1,6 @@
 ---
 name: ui-designer
-description: UI/UXの設計を担当。ユーザー体験を考慮したコンポーネント設計・スタイリング・インタラクション設計。UI仕様を策定しCoderに引き継ぐ。Use when designing new screens, improving existing UI, or making styling decisions.
+description: UI/UXの設計を担当。ユーザー体験を考慮したコンポーネント設計・スタイリング・インタラクション設計。UI 仕様を策定し Coder に引き継ぐ。Use when designing new screens, improving existing UI, or making styling decisions.
 user-invocable: false
 ---
 
