@@ -5,15 +5,15 @@
 
 ## エージェント構成
 
-| エージェント | 担当 |
-|---|---|
-| Conductor | 工程管理・委譲・完了判定 |
-| Architect | 要件分析・影響範囲・技術選定・実装計画 |
-| Designer | UI レイアウト・UX 設計・インタラクション設計 |
-| Coder | 実装計画に基づくコード実装 |
-| Docgen | YAML 設計書の生成・更新 |
-| Tester | テストの作成・実行（unit / e2e / security） |
-| Reviewer | コード・設計のレビュー（tech / biz） |
+| エージェント | 担当 | Skill 名 |
+|---|---|---|
+| Conductor | 工程管理・委譲・完了判定 | `run` |
+| Architect | 要件分析・影響範囲・技術選定・実装計画 | `architect` |
+| Designer | UI レイアウト・UX 設計・インタラクション設計 | `ui-designer` |
+| Coder | 実装計画に基づくコード実装 | `coder` |
+| Docgen | YAML 設計書の生成・更新 | `docgen` |
+| Tester | テストの作成・実行（unit / e2e / security） | `unit-tester` / `e2e-tester` / `security-tester` |
+| Reviewer | コード・設計のレビュー（tech / biz） | `tech-reviewer` / `biz-reviewer` |
 
 ## 開発フロー
 
