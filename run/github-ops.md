@@ -109,6 +109,43 @@ gh api graphql -f query='
 }'
 ```
 
+## Project ステータス更新
+
+ステータス更新は GraphQL mutation で行う。事前に Project の Field ID と Option ID を取得する必要がある。
+
+```bash
+# 1. Status フィールドの ID と選択肢を取得
+gh api graphql -f query='
+{
+  organization(login: "<owner>") {
+    projectV2(number: <projectNumber>) {
+      field(name: "Status") {
+        ... on ProjectV2SingleSelectField {
+          id
+          options { id name }
+        }
+      }
+    }
+  }
+}'
+
+# 2. アイテムの ID を取得（Issue URL から）
+gh project item-list <projectNumber> --owner <owner> --format json | jq '.items[] | select(.content.url == "<issueUrl>") | .id'
+
+# 3. ステータスを更新
+gh api graphql -f query='
+mutation {
+  updateProjectV2ItemFieldValue(input: {
+    projectId: "<projectId>"
+    itemId: "<itemId>"
+    fieldId: "<statusFieldId>"
+    value: { singleSelectOptionId: "<optionId>" }
+  }) {
+    projectV2Item { id }
+  }
+}'
+```
+
 ## Issue / Project 運用ルール
 
 ### ステータスフロー
