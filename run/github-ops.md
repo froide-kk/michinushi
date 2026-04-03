@@ -41,6 +41,19 @@ gh api graphql -f query='
   }
 }'
 
+# 次ページ取得（hasNextPage が true の場合）
+gh api graphql -f query='
+{
+  repository(owner: "<owner>", name: "<repo>") {
+    pullRequest(number: <PR番号>) {
+      reviewThreads(first: 20, after: "<endCursor>") {
+        nodes { id comments(first: 1) { nodes { body author { login } } } }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}'
+
 # スレッドにリプライ
 gh api graphql -f query='
 mutation {

@@ -114,6 +114,6 @@ Conductor は上記フローの **進行管理のみ** を行う。
 - **バグ修正**: Architect → Docgen → Reviewer → Coder → Tester → Reviewer（設計書更新不要なら Docgen/設計Reviewer を省略）
 - **リファクタリング**: Coder → Tester → Reviewer（設計フェーズ不要）
 - **設計変更のみ**: Architect → Docgen → Reviewer（実装フェーズ不要）
-- **typo修正**: Coder → Tester（レビュー不要）
+- **typo修正**: Coder → Tester（Architect が軽微変更と判断した場合のみ Reviewer を省略可）
 
 これらはあくまで典型例であり、最終的には Architect が個別のタスク内容に基づいて判断する。
