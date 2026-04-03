@@ -87,6 +87,26 @@ gh api graphql -f query='
   }
 }'
 # 50件超の場合は pageInfo.hasNextPage を確認し、after: endCursor で次ページを取得する
+
+# 次ページ取得（hasNextPage が true の場合）
+gh api graphql -f query='
+{
+  organization(login: "<owner>") {
+    projectV2(number: <projectNumber>) {
+      items(first: 50, after: "<endCursor>") {
+        nodes {
+          fieldValueByName(name: "Status") {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+          content {
+            ... on Issue { number title state }
+          }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}'
 ```
 
 ## Issue / Project 運用ルール
