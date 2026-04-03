@@ -6,7 +6,15 @@ license: MIT
 compatibility: "Requires ajv-cli for schema validation (npm install -g ajv-cli ajv-formats)"
 ---
 
-# 設計書ジェネレーター
+# Docgen
+
+## 前提
+
+開発プロセス全体の定義は `.claude/skills/process.md` に記載されている。
+Docgen は設計フェーズで Architect の後に作業し、後続の Reviewer が設計レビューを行う。
+Reviewer と Coder が参照しやすい設計書を作成することを意識する。
+
+## 概要
 
 JSON スキーマに準拠した YAML 設計書を生成する。
 
