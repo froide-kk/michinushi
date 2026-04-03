@@ -96,8 +96,10 @@ Architect の分析結果に基づき、`process.md` に定義された設計フ
 PR にレビューコメントが付いた場合:
 
 1. `gh api` でコメントを取得し、MUST / SHOULD / NIT を分類
-2. 修正が必要な場合、process.md の工程に従って委譲:
-   - Coder → Docgen → Tester → Reviewer の順
+2. 修正が必要な場合、指摘の種類に応じて process.md の工程に従って委譲:
+   - 設計書の指摘: Docgen → Reviewer
+   - コードの指摘: Coder → Tester → Reviewer
+   - 設計・コード両方の指摘: Docgen → Reviewer → Coder → Tester → Reviewer
 3. 各コメントスレッドに個別リプライ（修正内容とコミットハッシュを含める）
 
 スレッド操作の詳細は `.claude/skills/run/github-ops.md` を参照。

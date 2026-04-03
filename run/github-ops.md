@@ -68,10 +68,12 @@ gh api graphql -f query='
             ... on Issue { number title state }
           }
         }
+        pageInfo { hasNextPage endCursor }
       }
     }
   }
 }'
+# 50件超の場合は pageInfo.hasNextPage を確認し、after: endCursor で次ページを取得する
 ```
 
 ## Issue / Project 運用ルール
