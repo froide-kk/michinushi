@@ -119,6 +119,7 @@ gh api graphql -f query='
 {
   organization(login: "<owner>") {
     projectV2(number: <projectNumber>) {
+      id
       field(name: "Status") {
         ... on ProjectV2SingleSelectField {
           id
