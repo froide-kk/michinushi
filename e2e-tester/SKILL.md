@@ -9,7 +9,7 @@ user-invocable: false
 ## 前提
 
 開発プロセス全体の定義は `.claude/skills/process.md` に記載されている。
-Tester は実装フェーズで Coder の後に作業し、後続の Reviewer がテスト結果を参照する。
+Tester は実装フェーズで Coder の後に作業し、後続の Reviewer がテスト結果を参照する（Reviewer が省略されない場合）。
 テスト失敗時は原因（テスト側 or 実装側）を切り分けて報告する。
 
 ## 定義

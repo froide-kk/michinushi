@@ -9,7 +9,7 @@ user-invocable: false
 ## 前提
 
 開発プロセス全体の定義は `.claude/skills/process.md` に記載されている。
-Architect は自分の後に Designer → Docgen → Reviewer → Coder → Tester → Reviewer と工程が続くことを理解した上で分析を行う。
+Architect は自分の後に原則として Designer → Docgen → Reviewer → Coder → Tester → Reviewer と工程が続くことを理解した上で分析を行う（工程は Architect 自身の判断で省略される場合がある）。
 分析結果には、どの工程が必要かの判断を含める。
 
 ## 定義

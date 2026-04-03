@@ -9,7 +9,7 @@ user-invocable: false
 ## 前提
 
 開発プロセス全体の定義は `.claude/skills/process.md` に記載されている。
-Coder の後には Tester → Reviewer と工程が続く。テストしやすく、レビューしやすいコードを書くことを意識する。
+Coder の後には原則として Tester → Reviewer と工程が続く（Architect の判断で省略される場合がある）。テストしやすく、レビューしやすいコードを書くことを意識する。
 
 ## 定義
 
