@@ -1,6 +1,6 @@
 ---
 name: todo
-description: GitHub Projectのタスク一覧をPM視点で構造化して報告する。要判断・進行中・次の候補・保留中に分類。Use when the user asks "what's the status?", "what should I work on?", or wants to see the task list.
+description: タスク一覧をPM視点で構造化して報告する。GitHub Projectまたはローカルファイルからタスクを取得し、要判断・進行中・次の候補・保留中に分類。Use when the user asks "what's the status?", "what should I work on?", or wants to see the task list.
 argument-hint: "[filter: all|backlog|in-progress]"
 context: fork
 agent: Explore
@@ -13,12 +13,17 @@ PM視点で状況を評価し、ビジネスオーナーが判断できる形で
 
 ## Step 1: プロジェクト設定の読み込み
 
-`.claude/config/project.yml` を読み、以下を取得:
+`.claude/config/project.yml` を読み、管理モードを判定する:
+- `mode.tasks` を確認（未定義なら `github` として扱う）
+- `tasks: github` → Step 2A へ
+- `tasks: local` → Step 2B へ
+
+## Step 2A: 情報収集（GitHub モード）
+
+`.claude/config/project.yml` から以下を取得:
 - `github.owner`
 - `github.repo`
 - `github.projectNumber`
-
-## Step 2: 情報収集
 
 以下の3つを並列で取得する:
 
@@ -62,25 +67,39 @@ gh issue list --repo <owner>/<repo> --state open --limit 200 --json number,title
 gh pr list --repo <owner>/<repo> --state open --limit 200 --json number,title,headRefName,body,reviewDecision
 ```
 
-## Step 3: PR↔Issue紐付け検出
+→ Step 3A へ
+
+## Step 2B: 情報収集（ローカルモード）
+
+`docs/tasks.md` を読み込み、各セクション（Triage / Todo / In Progress / In Review / Done）のタスクを解析する。
+
+→ Step 3B へ
+
+## Step 3A: PR↔Issue紐付け検出（GitHub モードのみ）
 
 各PRについて関連Issueを特定:
 1. PR本文に `Closes #XX`, `Fixes #XX`, `Resolves #XX` → Issue #XX と紐付け
 2. ブランチ名にIssue番号が含まれる → 紐付け
 3. 紐付けなし → 「Issue未紐付きPR」として報告
 
+## Step 3B: タスク解析（ローカルモードのみ）
+
+`docs/tasks.md` のセクション構造から各タスクのステータスを判定する。
+
 ## Step 4: 分類
 
-| セクション | 判定条件 |
-|-----------|---------|
-| 🔴 要判断 | Projectステータスが「Triage」/ コメントに方針未決定の議論 |
-| ▶ 進行中 | Projectステータスが「In Progress」または「In Review」 |
-| 📥 次の候補 | Projectステータスが「Todo」 |
-| 💤 保留中 | ラベルに「on-hold」/ コメントで明示的に保留 |
+両モード共通で、以下の分類に振り分ける:
+
+| セクション | GitHub モード判定条件 | ローカルモード判定条件 |
+|-----------|---------------------|---------------------|
+| 🔴 要判断 | Projectステータスが「Triage」/ コメントに方針未決定の議論 | `## Triage` セクションのタスク |
+| ▶ 進行中 | Projectステータスが「In Progress」または「In Review」 | `## In Progress` / `## In Review` セクションのタスク |
+| 📥 次の候補 | Projectステータスが「Todo」 | `## Todo` セクションのタスク |
+| 💤 保留中 | ラベルに「on-hold」/ コメントで明示的に保留 | タスク行に `[on-hold]` を含む |
 
 優先度判断基準:
 - [bug] → ユーザー影響があるため優先
-- 他Issueのブロッカー → 優先
+- 他タスクのブロッカー → 優先
 - [enhancement] → 機能追加は後回し可能
 
 ## Step 5: 報告
@@ -94,16 +113,16 @@ gh pr list --repo <owner>/<repo> --state open --limit 200 --json number,title,he
   #<番号> <タイトル> — <判断が必要な理由>
 
 ▶ 進行中 (<件数>):
-  #<番号> <タイトル> — <PR状態・CI結果等>
+  #<番号> <タイトル> — <状態の補足>
 
 📥 次の候補 (優先度順):
-  #<番号> <タイトル> [<ラベル>] — <優先する理由>
+  #<番号> <タイトル> — <優先する理由>
 
 💤 保留中:
   #<番号> <タイトル> — <保留理由>
 ```
 
-Issue未紐付きPRがあれば末尾に:
+GitHub モードで Issue 未紐付き PR があれば末尾に:
 ```
 ⚠ Issue未紐付きPR:
   PR #<番号> <タイトル>

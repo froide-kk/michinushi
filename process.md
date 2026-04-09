@@ -3,6 +3,31 @@
 全エージェントが参照する共通ルール。
 各エージェントは自分の担当工程だけでなく、前後の工程を理解した上で作業する。
 
+## 管理モード
+
+プロジェクトの `.claude/config/project.yml` で管理モードを設定する。
+
+```yaml
+mode:
+  source: github | git | none   # ソース管理方式
+  tasks: github | local         # タスク管理方式
+```
+
+| パターン | source | tasks | 用途 |
+|---------|--------|-------|------|
+| GitHub 完全連携 | `github` | `github` | GitHub でソース・タスクを一元管理 |
+| Git + ローカルタスク | `git` | `local` | Git 管理だがリモートが GitHub 以外、またはリモート無し |
+| 完全ローカル | `none` | `local` | Git を使わないプロジェクト |
+
+**制約**: `tasks: github` は `source: github` を必要とする。
+
+**後方互換**: `mode` が未定義の場合は `source: github`, `tasks: github` として扱う。
+
+各エージェントの動作はモードによって以下が変わる:
+- **タスク参照先**: GitHub Issues / `docs/tasks.md`
+- **完了時の操作**: PR 作成・Project 更新 / `docs/tasks.md` のステータス移動 / サマリー報告のみ
+- **参照ドキュメント**: `run/github-ops.md` / `run/local-ops.md`
+
 ## エージェント構成
 
 | エージェント | 担当 | Skill 名 |

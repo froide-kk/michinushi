@@ -18,16 +18,44 @@ disable-model-invocation: true
 
 以下を **すべて** 確認し、結果を一覧で表示する:
 
-1. **Git状態**: `git log --oneline | wc -l` でcommit数
+1. **Git状態**: `git log --oneline | wc -l` でcommit数（Git 未使用の場合はスキップ）
 2. **CLAUDE.md**: ファイルの有無と内容の鮮度
 3. **既存Skills**: `.claude/skills/` 配下のディレクトリ一覧
 4. **プロジェクト設定**: `.claude/config/` 配下のファイル一覧
-5. **GitHub Project**: `.claude/config/project.yml` を読み、`gh api graphql` でProject存在確認
+5. **GitHub Project**: `.claude/config/project.yml` を読み、`gh api graphql` でProject存在確認（GitHub モードの場合のみ）
 6. **CI/CD**: `.github/workflows/` 配下のファイル一覧
 7. **テスト**: 各 `package.json` から `vitest`, `jest`, `playwright` 等を検出
 8. **パッケージ構成**: `packages/` 配下のディレクトリ一覧（モノレポの場合）
-9. **gh auth スコープ**: `gh auth status` で必要スコープを満たすか確認
-10. **Copilot Code Review**: 自動レビュー有効化の確認ガイダンス
+9. **gh auth スコープ**: `gh auth status` で必要スコープを満たすか確認（GitHub モードの場合のみ）
+10. **Copilot Code Review**: 自動レビュー有効化の確認ガイダンス（GitHub モードの場合のみ）
+
+## Step 1.5: 管理モードの選択
+
+`.claude/config/project.yml` に `mode` が未定義の場合、管理モードを確認する。
+（既に `mode` が定義済みなら、このステップはスキップする）
+
+検出結果を踏まえて以下を提示し、選択してもらう:
+
+```
+管理モードを選択してください:
+
+1. GitHub 完全連携 — GitHub でソース管理・タスク管理を一元化（GitHub Project + Issues）
+2. Git + ローカルタスク — Git でソース管理、タスクはローカルファイル（docs/tasks.md）で管理
+3. 完全ローカル — Git を使わず、タスクもローカルファイルで管理
+```
+
+選択に応じて `project.yml` の `mode` セクションを設定する:
+
+| 選択 | source | tasks |
+|------|--------|-------|
+| 1 | `github` | `github` |
+| 2 | `git` | `local` |
+| 3 | `none` | `local` |
+
+**判断の補助**: Step 1 の検出結果から推奨を示す。
+- Git リポジトリ + `gh auth status` 成功 → 1 を推奨
+- Git リポジトリ + `gh` 未インストールまたは認証失敗 → 2 を推奨
+- Git リポジトリでない → 3 を推奨
 
 ## Step 2: 状況判定と提案
 
@@ -35,7 +63,7 @@ disable-model-invocation: true
 
 検出結果を表示し、以下の選択肢を提示:
 1. AI駆動開発の初期設定（Skill配置・設定確認）
-2. 現状の棚卸し（コード分析→Issue化）
+2. 現状の棚卸し（コード分析→タスク化）
 3. CLAUDE.md の改善（検出結果と現状の差分を反映）
 4. 全て
 
@@ -43,8 +71,8 @@ disable-model-invocation: true
 
 以下の順でセットアップを提案:
 1. CLAUDE.md の作成（技術スタック・プロジェクト概要の定義）
-2. `.claude/config/project.yml` の作成（owner/repo/project情報）
-3. GitHub Projectの作成
+2. `.claude/config/project.yml` の作成（mode + 連携情報）
+3. タスク管理の初期化（GitHub モード: GitHub Project 作成 / ローカルモード: `docs/tasks.md` 作成）
 4. `.claude/config/` にプロジェクト設定ファイルを配置
 5. 要件定義から始めるか確認
 
@@ -76,6 +104,8 @@ cp .claude/skills/docgen/schemas/*.json docs/schemas/
 
 ## Step 3: 不足項目の対応
 
+### GitHub モード（`source: github`, `tasks: github`）の場合
+
 **gh auth スコープ不足**:
 ```
 ⚠ gh auth スコープ不足: project が必要です
@@ -83,11 +113,18 @@ cp .claude/skills/docgen/schemas/*.json docs/schemas/
 $ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project.yml の requiredScopes 参照
 ```
 
-**project.yml 未作成**:
-→ ユーザーにowner/repo/projectNumberを確認し、作成を提案
+**project.yml に GitHub 情報が不足**:
+→ ユーザーにowner/repo/projectNumberを確認し、設定を追加
 
 **GitHub Project未作成**:
 → 承認後: `gh project create --owner <owner> --title "<プロジェクト名>"`
+
+### ローカルタスクモード（`tasks: local`）の場合
+
+**`docs/tasks.md` 未作成**:
+→ テンプレートから初期ファイルを作成（フォーマットは `.claude/skills/run/local-ops.md` を参照）
+
+### 共通
 
 **CLAUDE.md が現状と乖離**:
 → 検出情報（パッケージ構成、コマンド等）とCLAUDE.md記載を比較し、差分の更新を提案
