@@ -1,9 +1,11 @@
 # Michinushi (道主貴)
 
-**Claude Code Skills for AI-driven development.**
+**Claude Code Skills & Agents for AI-driven development.**
 
 > 道主貴（みちぬしのむち）— 宗像三女神の別称。道を統べる最高神。
-> 開発の道を導き、各Skillがその道を守る。
+> 開発の道を導き、各 Skill / Agent がその道を守る。
+
+> ⚠️ **破壊的変更（2026-04 リリース）** — Skill と Agent の再構成を行いました。9つの Skill（architect / coder / docgen / ui-designer / unit-tester / e2e-tester / security-tester / tech-reviewer / biz-reviewer）が **5つの Agent**（architect / designer / implementer / tester / reviewer）+ **複数の参照 Skill** に再編されています。既存ユーザーは [Migration Guide](#migration-guide-from-previous-versions) を参照してください。
 
 ## Overview
 
@@ -50,20 +52,29 @@ Triage → Todo → In Progress → In Review → Done
 ```
          /run #33
             │
-   ┌────────┴────────┐
-   │   計画・設計     │  architect, docgen
-   ├─────────────────┤
-   │   実装          │  coder, ui-designer
-   ├─────────────────┤
-   │   テスト        │  unit-tester, e2e-tester, security-tester
-   ├─────────────────┤
-   │   自己レビュー   │  tech-reviewer, biz-reviewer
-   ├─────────────────┤
-   │   PR 作成       │  Closes #33, status → In Review
-   └─────────────────┘
+   ┌────────┴──────────┐
+   │   計画・設計       │  architect Agent → designer Agent (※)
+   ├───────────────────┤
+   │   実装             │  implementer Agent
+   ├───────────────────┤
+   │   テスト           │  tester Agent (unit / e2e / security)
+   ├───────────────────┤
+   │   自己レビュー      │  reviewer Agent (tech + biz 観点)
+   ├───────────────────┤
+   │   PR 作成          │  Closes #33, status → In Review
+   └───────────────────┘
 ```
 
-各工程で必要な Skill だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `/run` が行います。
+※ designer は UI 変更を含む場合のみ。architect が判断します。
+
+各工程で必要な Agent だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `architect` が行い、`/run` (Conductor) がそれに従って Agent を起動します。
+
+### Skill と Agent の役割分担
+
+- **Skill** = ピンポイントな手順・参照材料（テスト記法、レビュー観点、ADR 形式など）
+- **Agent** = それらを組み合わせて目的を達成するオーケストレーター（判断 + 委譲）
+
+例: `tester` Agent はタスクに応じて `test-design-principles` / `test-vitest` / `test-playwright` / `test-owasp-checklist` の中から必要な Skill を選んでテストを実装します。
 
 ### YAML 設計書
 
@@ -134,46 +145,79 @@ gh auth login
 gh auth refresh -h github.com -s repo,read:project,project,read:org
 ```
 
-## Skills
+## Skills と Agents
 
-### User-invocable (ユーザーが直接呼び出す)
+### User-invocable Skills (ユーザーが直接呼び出す)
 
 | Skill | Command | Description |
 |-------|---------|-------------|
-| **run** | `/run #33` `/run 自然言語指示` | タスクの理解・計画・専門 Skill への委譲・進捗管理 |
+| **run** | `/run #33` `/run 自然言語指示` | タスクの理解・計画・Agent への委譲・進捗管理 (Conductor) |
 | **todo** | `/todo` | タスク一覧を PM 視点で構造化して報告（GitHub / ローカル両対応） |
-| **setup** | `/setup` | AI 駆動開発の初期セットアップ。リポジトリ状態を自動検出 |
+| **setup** | `/setup` | AI 駆動開発の初期セットアップ。Agent 登録も実行 |
 
-### Auto-invoked (/run が状況に応じて委譲)
+### Agents (Conductor が状況に応じて委譲)
 
-| Skill | Role | Description |
+`/setup` 実行時に `.claude/agents/<name>.md` に登録される。
+
+| Agent | Role | Description |
 |-------|------|-------------|
-| **architect** | 設計 | 影響範囲分析・技術選定・実装計画 |
-| **docgen** | 設計書 | JSON Schema 準拠の YAML 設計書を生成・更新 |
-| **coder** | 実装 | 設計書・既存パターンに忠実なコード生成 |
-| **ui-designer** | UI/UX | コンポーネント設計・スタイリング・インタラクション設計 |
-| **unit-tester** | テスト | 入力検証・権限制御・ビジネスロジックのユニットテスト |
-| **e2e-tester** | E2Eテスト | ユーザーの業務フロー全体をブラウザ上で検証 |
-| **security-tester** | セキュリティ | OWASP Top 10 ベースのセキュリティテスト |
-| **tech-reviewer** | 技術レビュー | セキュリティ・型安全・パフォーマンスをチェック |
-| **biz-reviewer** | 業務レビュー | ビジネスロジックの正しさ・要件との整合性をチェック |
+| **architect** | 設計 | 影響範囲分析・実装計画・工程要否判断 |
+| **designer** | UI/UX | コンポーネント構成・操作フロー・状態遷移の設計 |
+| **implementer** | 実装 | 設計書・既存パターンに忠実なコード実装と設計書更新 |
+| **tester** | テスト | unit / e2e / security テストを必要に応じて組み立て |
+| **reviewer** | レビュー | tech 観点 + biz 観点を統合したコード・設計レビュー |
+
+### Reference Skills (Agent が必要に応じて参照)
+
+`.claude/skills/` 配下にディレクトリで配置される。各 Agent が状況に応じて読み込む。
+
+| Category | Skill | Used by |
+|----------|-------|---------|
+| 設計 | `design-impact-analysis`, `design-impl-plan-format`, `design-adr-format` | architect |
+| UI | `design-ui-patterns` | designer |
+| 実装 | `impl-coding-conventions`, `doc-yaml-schema` | implementer |
+| テスト | `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist` | tester |
+| レビュー | `review-tech-checklist`, `review-biz-checklist` | reviewer |
 
 ## Architecture
 
 ```
 .claude/
-  skills/          # <-- This repository (Michinushi)
-    run/           # Task orchestration (/run)
-    architect/     # Design & planning
-    coder/         # Implementation
-    ...
-  config/          # Project-specific settings (NOT included)
-    project.yml    # GitHub owner/repo/project info
-    tech.yml       # Tech review checklist
-    biz.yml        # Business review checklist
-    security.yml   # Security test checklist
-    ...
+  skills/                    # <-- This repository (Michinushi)
+    run/SKILL.md             # /run (Conductor)
+    todo/SKILL.md            # /todo
+    setup/SKILL.md           # /setup
+    architect/AGENT.md       # Agent 定義（setup で .claude/agents/ にコピー）
+    designer/AGENT.md
+    implementer/AGENT.md
+    tester/AGENT.md
+    reviewer/AGENT.md
+    design-*/SKILL.md        # 設計参照 Skill
+    impl-*/SKILL.md          # 実装参照 Skill
+    test-*/SKILL.md          # テスト参照 Skill
+    review-*/SKILL.md        # レビュー参照 Skill
+    doc-yaml-schema/         # 設計書スキーマ + 生成手順
+  agents/                    # /setup で AGENT.md からコピーされる
+    architect.md
+    designer.md
+    implementer.md
+    tester.md
+    reviewer.md
+  config/                    # Project-specific settings (NOT included)
+    project.yml              # 管理モード・連携情報
+    tech.yml                 # 技術レビューチェック項目
+    biz.yml                  # 業務レビューチェック項目
+    security.yml             # セキュリティテストチェック項目
+    ui.yml                   # UI方針
+    design.yml               # 設計書規約
 ```
+
+### Skill vs Agent
+
+- **Skill** (`SKILL.md`): ピンポイントな手順・参照材料。`.claude/skills/` に配置すれば Claude Code が自動認識
+- **Agent** (`AGENT.md`): 判断と委譲を担う。`/setup` が `.claude/agents/<name>.md` にコピー登録
+
+ファイル名で識別するため、Skill と Agent が同名で衝突することはありません。
 
 ### Skill vs Config の分離
 
@@ -183,27 +227,30 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | 例 | 「OWASP Top 10 ベースでテストする」 | 「storeId フィルタ必須」 |
 | リポジトリ | Michinushi (公開) | 各プロジェクト (非公開) |
 
-Skills はどのプロジェクトでも使える汎用的な指示を記述し、プロジェクト固有の設定は `.claude/config/` に分離します。
+Skills/Agents はどのプロジェクトでも使える汎用的な指示を記述し、プロジェクト固有の設定は `.claude/config/` に分離します。
 
 ### Config files
 
 | File | Used by | Description |
 |------|---------|-------------|
-| `project.yml` | run, todo | 管理モード・連携情報（必須） |
-| `tech.yml` | tech-reviewer | 技術レビューのチェック項目 |
-| `biz.yml` | biz-reviewer | 業務レビューのチェック項目 |
-| `security.yml` | security-tester | セキュリティテストのチェック項目 |
-| `ui.yml` | ui-designer | UI 方針・デザインシステム設定 |
-| `design.yml` | docgen | 設計書規約・スキーマ参照先 |
+| `project.yml` | run, todo, setup | 管理モード・連携情報（必須） |
+| `tech.yml` | reviewer Agent | 技術レビューのチェック項目 |
+| `biz.yml` | reviewer Agent | 業務レビューのチェック項目 |
+| `security.yml` | tester Agent | セキュリティテストのチェック項目 |
+| `ui.yml` | designer Agent | UI 方針・デザインシステム設定 |
+| `design.yml` | architect / implementer Agent | 設計書規約・スキーマ参照先 |
 
-## Creating a New Skill
+## Creating a New Skill or Agent
 
 ```
 skills/
-  your-skill/
-    SKILL.md       # Skill definition (required)
-    *.md           # Supporting docs (optional)
+  your-feature/
+    SKILL.md   # 参照 Skill にする場合
+    AGENT.md   # Agent にする場合
+    *.md       # Supporting docs (optional)
 ```
+
+ファイル名で種別を区別する（同じディレクトリに両方を置かない）。
 
 ### SKILL.md Format
 
@@ -220,7 +267,26 @@ disable-model-invocation: true # true = only invoked by explicit /command
 Instructions for Claude when this skill is invoked.
 ```
 
-### Frontmatter Fields
+### AGENT.md Format
+
+Claude Code のサブエージェント標準フォーマットに準拠する。
+
+```yaml
+---
+name: your-agent
+description: Agent の役割と起動条件。Conductor が委譲先を判断するために使う。
+tools: Read, Grep, Glob, Bash  # 使用可能ツール（任意）
+model: opus | sonnet | haiku    # 使用モデル（任意）
+---
+
+# Your Agent
+
+責務、使う Skill、判断基準、出力フォーマットなどの指示。
+```
+
+`/setup` 実行時に `.claude/agents/<name>.md` にコピー登録される。
+
+### Frontmatter Fields (SKILL.md)
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -245,6 +311,55 @@ Instructions for Claude when this skill is invoked.
 - GitHub モードの場合のみ:
   - [GitHub CLI](https://cli.github.com/) (`gh`) with `repo`, `read:project`, `project` scopes
   - A [GitHub Project (V2)](https://docs.github.com/en/issues/planning-and-tracking-with-projects) for `/run` and `/todo`
+
+## Migration Guide (from previous versions)
+
+旧構成（9つの Skill）から新構成（5つの Agent + 参照 Skill 群）への移行手順:
+
+### 1. Michinushi 本体を更新
+
+```bash
+# subtree の場合
+git subtree pull --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
+
+# curl の場合
+curl -sL https://github.com/froide-kk/michinushi/archive/refs/heads/main.tar.gz \
+  | tar xz --strip-components=1 -C .claude/skills
+```
+
+### 2. 旧 Skill の削除（subtree pull の場合は自動）
+
+旧 Skill ディレクトリは削除されています。手動配置の場合は以下を削除:
+
+```
+.claude/skills/architect/SKILL.md  → architect/AGENT.md (中身も再構成)
+.claude/skills/coder/               → implementer/AGENT.md
+.claude/skills/docgen/              → doc-yaml-schema/ (Skill にリネーム)
+.claude/skills/ui-designer/         → designer/AGENT.md
+.claude/skills/unit-tester/         → 削除（tester Agent + test-* Skill に統合）
+.claude/skills/e2e-tester/          → 削除
+.claude/skills/security-tester/     → 削除
+.claude/skills/tech-reviewer/       → 削除（reviewer Agent + review-* Skill に統合）
+.claude/skills/biz-reviewer/        → 削除
+```
+
+### 3. `/setup` を再実行
+
+```
+/setup
+```
+
+Step 3.5 で AGENT.md が `.claude/agents/` に登録されます。
+
+### 4. 設計書スキーマのパス更新
+
+`docgen/schemas/` を参照していた箇所は `doc-yaml-schema/schemas/` に変更されています。プロジェクト内に `$schema` パスをハードコードしている設計書 YAML がある場合は確認してください。
+
+### 5. プロジェクト固有 Config の確認
+
+`.claude/config/` の各 YAML（tech.yml, biz.yml 等）の中身は変更不要です。新しい reviewer / tester Agent がそのまま読み込みます。
+
+---
 
 ## License
 
