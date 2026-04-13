@@ -1,13 +1,21 @@
 ---
 name: setup
-description: AI駆動開発の初期セットアップ。リポジトリの状態を自動検出し、新規/既存に応じたガイダンスを提供。GitHub Project作成、スコープ確認、Skill配置、Agent 登録を行う。
+description: AI駆動開発の初期セットアップと michinushi 本体の更新。リポジトリの状態を自動検出し、新規/既存に応じたガイダンスを提供。GitHub Project作成、スコープ確認、Skill配置、Agent 登録、michinushi 自体のアップデートを行う。
+argument-hint: "[update]"
 disable-model-invocation: true
 ---
 
-# /setup — AI駆動開発 初期セットアップ
+# /setup — AI駆動開発 初期セットアップ・更新
 
 リポジトリの状態を自動検出し、状況に応じたセットアップを実行する。
 「新規ですか？」とは聞かず、見ればわかることは見て判断する。
+
+## 引数の解析
+
+`$ARGUMENTS` を確認し、フローを分岐する:
+
+- **`update`** → [Update フロー](#update-フロー) を実行（michinushi 本体の更新）
+- **引数なし** → 通常のセットアップフロー（Step 1 から）
 
 ## 事前準備
 
@@ -191,4 +199,86 @@ cp .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
 参照 Skill (.claude/skills/):
   design-*, impl-*, test-*, review-*, doc-yaml-schema
   各 Agent が必要に応じて参照する
+
+michinushi の更新:
+  /setup update — 最新版を取得し Agent を再登録
 ```
+
+---
+
+## Update フロー
+
+`/setup update` で起動する。michinushi 本体（`.claude/skills/` 配下）を最新版に更新し、Agent 登録を再実行する。
+
+### Step U1: インストール方式の判定
+
+`.claude/config/project.yml` の `michinushi.installMethod` を確認する:
+
+- **キャッシュあり**（`subtree` または `curl`）→ その方式を採用
+- **キャッシュなし** → 自動判定:
+  ```bash
+  git log --grep="git-subtree-dir: \.claude/skills" --oneline | head -1
+  ```
+  - 結果あり → `subtree`
+  - 結果なし → `curl`
+- 判定結果を `project.yml` の `michinushi.installMethod` に保存（次回以降のキャッシュ）
+
+### Step U2: 事前チェック
+
+#### subtree の場合
+
+1. ワーキングツリーが clean か確認（`git status --porcelain`）。汚れている場合は警告し、コミットまたはスタッシュを促してから再実行
+2. 現在のブランチを記録（後の参考用）
+
+#### curl の場合
+
+1. `.claude/skills/` 配下にユーザーが追加した独自 Skill / Agent がないか確認
+   - michinushi 既知のディレクトリ（`run`, `todo`, `setup`, `architect`, `designer`, ... など）以外があれば一覧表示
+   - 上書きされない位置にあるか確認（`tar` 展開時に消える可能性を警告）
+2. ユーザー独自のものがあれば、退避 or 続行を確認
+
+### Step U3: 更新の実行
+
+#### subtree の場合
+
+```bash
+git subtree pull --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
+```
+
+コンフリクト発生時:
+- ユーザーがローカルで michinushi の Skill / Agent を編集しているケースが多い
+- コンフリクト箇所を表示し、ユーザーに解決を依頼
+
+#### curl の場合
+
+```bash
+curl -sL https://github.com/froide-kk/michinushi/archive/refs/heads/main.tar.gz \
+  | tar xz --strip-components=1 -C .claude/skills
+```
+
+### Step U4: Agent の再登録
+
+通常フローの [Step 3.5](#step-35-agent-の登録) と同じ処理を実行する。
+更新で `AGENT.md` が変わった Agent は、ユーザー編集チェックの上で `.claude/agents/` を更新する。
+
+### Step U5: 更新内容の報告
+
+```
+✅ michinushi 更新完了
+
+更新前: <commit hash> (subtree の場合)
+更新後: <commit hash>
+
+変更:
+  - <変更されたディレクトリ一覧>
+  - 新規 Skill: <あれば>
+  - 削除 Skill: <あれば>
+
+Agent 再登録: 5件中 N件更新
+  → ユーザー編集のため保留: <あれば一覧>
+```
+
+### 注意
+
+- subtree 方式で history を rebase 等で書き換えた後は自動判定が失敗する場合がある。その場合は `project.yml` の `michinushi.installMethod` を手動で `subtree` に設定する
+- curl 方式は基本上書きのため、michinushi 配布物（既知の Skill / Agent）を直接編集しているとロストする。`.claude/agents/` 側で編集すべき

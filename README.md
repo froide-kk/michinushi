@@ -111,11 +111,6 @@ git subtree add --prefix=.claude/skills https://github.com/froide-kk/michinushi.
 > git stash pop      # 退避した変更を復元
 > ```
 
-更新:
-```bash
-git subtree pull --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
-```
-
 #### B. curl でダウンロード（Git 未使用プロジェクト向け）
 
 ```bash
@@ -125,7 +120,9 @@ curl -sL https://github.com/froide-kk/michinushi/archive/refs/heads/main.tar.gz 
   | tar xz --strip-components=1 -C .claude/skills
 ```
 
-更新時は同じコマンドを再実行する（既存ファイルを上書き）。
+#### 更新（A / B 共通）
+
+導入後の更新は `/setup update` で行います。インストール方式は自動判定され、適切なコマンドが実行されます（手動で `git subtree pull` / `curl` を実行することも可能）。
 
 ### 2. 初期セットアップ
 
@@ -153,7 +150,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 |-------|---------|-------------|
 | **run** | `/run #33` `/run 自然言語指示` | タスクの理解・計画・Agent への委譲・進捗管理 (Conductor) |
 | **todo** | `/todo` | タスク一覧を PM 視点で構造化して報告（GitHub / ローカル両対応） |
-| **setup** | `/setup` | AI 駆動開発の初期セットアップ。Agent 登録も実行 |
+| **setup** | `/setup` `/setup update` | AI 駆動開発の初期セットアップ・michinushi 本体の更新 |
 
 ### Agents (Conductor が状況に応じて委譲)
 
@@ -318,14 +315,11 @@ model: opus | sonnet | haiku    # 使用モデル（任意）
 
 ### 1. Michinushi 本体を更新
 
-```bash
-# subtree の場合
-git subtree pull --prefix=.claude/skills https://github.com/froide-kk/michinushi.git main --squash
-
-# curl の場合
-curl -sL https://github.com/froide-kk/michinushi/archive/refs/heads/main.tar.gz \
-  | tar xz --strip-components=1 -C .claude/skills
 ```
+/setup update
+```
+
+インストール方式（subtree / curl）は自動判定され、適切なコマンドが実行されます。手動で実行する場合は導入時のコマンドを再実行してください。
 
 ### 2. 旧 Skill の削除（subtree pull の場合は自動）
 
