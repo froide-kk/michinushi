@@ -151,15 +151,44 @@ find .claude/skills -maxdepth 2 -name 'AGENT.md'
 
 ### 登録処理
 
-各 `AGENT.md` について:
+各 `AGENT.md` について以下の判定を行う:
 
-1. **新規登録**: `.claude/agents/<name>.md` が未存在 → そのままコピー
-2. **既存・未編集**: 既存ファイルが直近のコピーと一致 → マスターで上書き更新
-3. **既存・編集済み**: 既存ファイルがユーザー編集を含む可能性 → 差分を表示し、更新するか確認
+| 状態 | 判定方法 | 動作 |
+|------|---------|------|
+| 新規 | `.claude/agents/<name>.md` が未存在 | そのままコピー |
+| 同一 | 既存ファイルがマスター（michinushi 側 AGENT.md）と完全一致 | 何もしない（最新） |
+| 差分あり | 既存ファイルとマスターが不一致 | 差分を表示し、ユーザーに対応を確認（後述） |
+
+> **注意**: 「ユーザーが編集した」のか「michinushi の更新でマスターが変わった」のかは判定できない（過去のコピー時点のハッシュを保持していないため）。差分がある場合は常にユーザーに判断を委ねる。
+
+#### 差分発見時の対応
+
+差分が発生したファイルに対して、3択で確認:
+
+```
+⚠ .claude/agents/<name>.md にマスターとの差分があります
+  ファイル: .claude/agents/architect.md
+  マスター: .claude/skills/architect/AGENT.md
+
+  差分:
+  - <差分内容>
+
+  対応を選んでください:
+  1. マスターで上書き（ユーザー編集があれば失われる）
+  2. 既存ファイルを保持（マスターの更新を取り込まない）
+  3. 個別に確認して merge（手動編集後に再実行）
+```
+
+#### コマンド例
 
 ```bash
 mkdir -p .claude/agents
+
+# 新規 or 上書きの場合
 cp .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
+
+# 差分確認
+diff .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
 ```
 
 `<name>` は `AGENT.md` の frontmatter `name` フィールドの値を使用する（ディレクトリ名と一致するのが原則）。
@@ -174,8 +203,8 @@ cp .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
 🤖 Agent 登録結果
   新規登録: 5件
     - architect, designer, implementer, tester, reviewer
-  更新: 0件
-  ユーザー編集を検出: 0件
+  最新（同一）: 0件
+  差分あり: 0件（ユーザー判断待ち）
   → .claude/agents/ に登録完了
 ```
 
