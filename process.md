@@ -82,118 +82,120 @@ mode:
 
 ## エージェント構成
 
-| エージェント | 担当 | Skill 名 |
-|---|---|---|
-| Conductor | 工程管理・委譲・完了判定 | `run` |
-| Architect | 要件分析・影響範囲・技術選定・実装計画 | `architect` |
-| Designer | UI レイアウト・UX 設計・インタラクション設計 | `ui-designer` |
-| Coder | 実装計画に基づくコード実装 | `coder` |
-| Docgen | YAML 設計書の生成・更新 | `docgen` |
-| Tester | テストの作成・実行（unit / e2e / security） | `unit-tester` / `e2e-tester` / `security-tester` |
-| Reviewer | コード・設計のレビュー（tech / biz） | `tech-reviewer` / `biz-reviewer` |
+| 種別 | 名称 | 担当 |
+|------|-----|------|
+| Skill | `run` (Conductor) | 工程管理・委譲・完了判定 |
+| Skill | `todo` | タスク一覧の構造化報告 |
+| Skill | `setup` | 初期セットアップ |
+| Agent | `architect` | 要件分析・影響範囲・実装計画・工程要否判断 |
+| Agent | `designer` | UI レイアウト・UX 設計・インタラクション設計 |
+| Agent | `implementer` | コード実装・設計書更新 |
+| Agent | `tester` | テスト全体の組み立て（unit / e2e / security） |
+| Agent | `reviewer` | コード・設計レビュー（tech / biz 両観点） |
+
+各 Agent は `.claude/agents/<name>.md` に登録される（`/setup` で配置）。
+
+参照 Skill（Agent が必要に応じて使う）:
+
+- 設計系: `design-impact-analysis`, `design-impl-plan-format`, `design-adr-format`, `design-ui-patterns`
+- 実装系: `impl-coding-conventions`, `doc-yaml-schema`
+- テスト系: `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist`
+- レビュー系: `review-tech-checklist`, `review-biz-checklist`
 
 ## 開発フロー
 
 ```
-        ┌─────────────────────────────────────────────┐
-        │               設計フェーズ                    │
-        │                                             │
-        │  Architect ─→ Designer ─→ Docgen ─→ Reviewer │
-        │                (※1)                  (設計)  │
-        │                                             │
-        │  Reviewer が MUST 指摘 → Docgen に差し戻し    │
-        └──────────────────┬──────────────────────────┘
-                           │ 設計レビュー通過
-        ┌──────────────────▼──────────────────────────┐
-        │               実装フェーズ                    │
-        │                                             │
-        │  Coder ─→ Tester ─→ Reviewer                │
-        │                      (コード)                │
-        │                                             │
-        │  Reviewer が MUST 指摘 → Coder に差し戻し     │
-        └──────────────────┬──────────────────────────┘
-                           │ コードレビュー通過
-                           ▼
-                    コミット・PR 作成
+        ┌─────────────────────────────────────────────────┐
+        │               設計フェーズ                        │
+        │                                                 │
+        │  architect ─→ (designer) ─→ reviewer (設計)     │
+        │                  (※1)                            │
+        │                                                 │
+        │  reviewer が MUST 指摘 → 該当 Agent に差し戻し    │
+        └────────────────────┬────────────────────────────┘
+                             │ 設計レビュー通過
+        ┌────────────────────▼────────────────────────────┐
+        │               実装フェーズ                        │
+        │                                                 │
+        │  implementer ─→ tester ─→ reviewer (コード)      │
+        │                                                 │
+        │  reviewer が MUST 指摘 → 該当 Agent に差し戻し    │
+        └────────────────────┬────────────────────────────┘
+                             │ コードレビュー通過
+                             ▼
+                      コミット・PR 作成
 ```
 
-※1 Designer は UI/UX 変更を含む場合のみ。Architect が判断する。
+※1 designer は UI/UX 変更を含む場合のみ。architect が判断する。
+※ 設計書の作成・更新は implementer が `doc-yaml-schema` Skill を使って行う。
 
-## 各工程の責務と後続への配慮
+## 各 Agent の責務と後続への配慮
 
-### Architect
+### architect
 
-**担当**: 要件分析・影響範囲分析・実装計画の策定
+**担当**: 要件分析・影響範囲分析・実装計画の策定・工程要否判断
 
 **後続のために**:
-- どの工程が必要かを分析結果に含める（設計フェーズ要否、Designer 要否、ADR 要否、テスト種別）
-- Docgen が設計書を書けるよう、影響する設計書と変更内容を明示する
-- Coder が迷わないよう、変更対象ファイル・実装順序・依存関係を具体的に示す
+- 必要な工程を `required-phases` で明示（designer / implementer / tester / reviewer / 設計書更新の要否）
+- implementer が迷わないよう、変更対象ファイル・実装順序・依存関係を具体的に示す
+- 設計上の重要な分岐点で判断した場合は ADR 作成を提案
 
-### Designer
+### designer
 
 **担当**: UI レイアウト・UX 設計・インタラクション設計
 
 **後続のために**:
-- Docgen が画面設計書を更新できるよう、コンポーネント構成・配置・操作フローを明示する
-- Coder が実装できるよう、具体的な UI 仕様（入力形式・バリデーション・状態遷移）を示す
+- implementer が実装できるよう、具体的な UI 仕様（コンポーネント構成・入力形式・バリデーション・状態遷移）を示す
+- 設計書（画面設計）の更新が必要な場合は更新内容を明示
 
-### Docgen
+### implementer
 
-**担当**: 設計書の作成・更新
-
-**後続のために**:
-- Reviewer がレビューできるよう、変更前後の差分を明確にする
-- Coder が参照できるよう、実装に必要な仕様（フィールド名・型・バリデーション規則）を設計書に含める
-
-### Coder
-
-**担当**: 実装計画に基づくコード実装
+**担当**: 実装計画に基づくコード実装、必要に応じて設計書（YAML）の更新
 
 **後続のために**:
-- Tester がテストを書けるよう、変更した関数・エンドポイント・コンポーネントを報告する
-- Reviewer がレビューしやすいよう、変更ファイル一覧と設計からの逸脱（あれば）を報告する
+- tester がテストを書けるよう、変更した関数・エンドポイント・コンポーネントを報告する
+- reviewer がレビューしやすいよう、変更ファイル一覧と設計からの逸脱（あれば）を報告する
 
-### Tester
+### tester
 
-**担当**: テストの作成・実行
+**担当**: テスト全体の組み立て・実行（unit / e2e / security）
 
 **後続のために**:
-- Reviewer がテスト結果を確認できるよう、パス/フェイル・カバレッジを報告する
+- reviewer がテスト結果を確認できるよう、パス/フェイル・カバレッジを報告する
 - テスト失敗時は原因（テスト側 or 実装側）を切り分けて報告する
 
-### Reviewer
+### reviewer
 
-**担当**: コード・設計のレビュー（tech 観点 / biz 観点）
+**担当**: コード・設計のレビュー（tech 観点 + biz 観点を統合）
 
 **差し戻し時のために**:
-- 修正が必要なエージェント（Coder / Docgen）を明示する
+- 修正が必要な Agent を `delegated-to` で明示する（implementer / designer / architect）
 - MUST / SHOULD / NIT の重大度を分類し、修正内容を具体的に示す
 
 ## Conductor の役割
 
 Conductor は上記フローの **進行管理のみ** を行う。
 
-- Architect の分析結果と判断を読み取り、実行すべき工程を抽出する
-- 各工程で該当エージェントを起動し、結果を受け取る
-- Reviewer の判定に基づき、次の工程に進むか差し戻すかを決める
+- architect の分析結果と判断を読み取り、実行すべき工程を抽出する
+- 各工程で該当 Agent を起動し、結果を受け取る
+- reviewer の判定に基づき、次の工程に進むか差し戻すかを決める
 - コード・設計書・テストを自分で書かない。レビューを自分でしない
 
 ## 工程の省略
 
-全タスクで全工程を実行する必要はない。**Architect が分析結果でどの工程が必要かを判断する。** Conductor は Architect の判断に従い、指定された工程のみを実行する。
+全タスクで全工程を実行する必要はない。**architect が分析結果でどの工程が必要かを判断する。** Conductor は architect の判断に従い、指定された工程のみを実行する。
 
-実装フェーズの基本フローは **Coder → Tester → Reviewer** とする。誤字脱字や文言修正などの軽微変更に限り、Architect が影響範囲が限定的と判断した場合のみ Reviewer を省略できる。
+実装フェーズの基本フローは **implementer → tester → reviewer** とする。誤字脱字や文言修正などの軽微変更に限り、architect が影響範囲が限定的と判断した場合のみ reviewer を省略できる。
 
 典型的なパターン:
 
-- **新機能**: 全工程
-- **バグ修正**: Architect → Docgen → Reviewer → Coder → Tester → Reviewer（設計書更新不要なら Docgen/設計Reviewer を省略）
-- **リファクタリング**: Coder → Tester → Reviewer（設計フェーズ不要）
-- **設計変更のみ**: Architect → Docgen → Reviewer（実装フェーズ不要）
-- **typo修正**: Coder → Tester（Architect が軽微変更と判断した場合のみ Reviewer を省略可）
+- **新機能**: 全工程（architect → designer → implementer → tester → reviewer）
+- **バグ修正**: architect → reviewer（設計）→ implementer → tester → reviewer（設計書更新不要なら設計 reviewer を省略）
+- **リファクタリング**: implementer → tester → reviewer（設計フェーズ不要）
+- **設計変更のみ**: architect → implementer（設計書更新）→ reviewer（実装フェーズ不要）
+- **typo 修正**: implementer → tester（architect が軽微変更と判断した場合のみ reviewer を省略可）
 
-これらはあくまで典型例であり、最終的には Architect が個別のタスク内容に基づいて判断する。
+これらはあくまで典型例であり、最終的には architect が個別のタスク内容に基づいて判断する。
 
 ## ユーザーへの質問ルール
 
