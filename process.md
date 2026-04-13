@@ -3,6 +3,58 @@
 全エージェントが参照する共通ルール。
 各エージェントは自分の担当工程だけでなく、前後の工程を理解した上で作業する。
 
+## Skill と Agent の使い分け
+
+michinushi の機能は **Skill** と **Agent** の2種類で構成される。
+
+| 種別 | 役割 | ファイル名 | 配置場所（ユーザー側） |
+|------|-----|-----------|--------------------|
+| **Skill** | ピンポイントな手順・参照材料 | `SKILL.md` | `.claude/skills/<name>/SKILL.md` |
+| **Agent** | 判断・委譲・複数 Skill の組み合わせ | `AGENT.md` | `.claude/agents/<name>.md` |
+
+### 設計原則
+
+- **Skill** = 「どうやるか」を書く（テスト記法、レビュー観点、ADR形式、コーディング規約など）
+  - 単機能・再利用可能・言語/ライブラリ依存物はライブラリごとに分離（例: `test-vitest`, `test-playwright`）
+- **Agent** = 「何をすべきか」を判断して Skill を組み合わせる
+  - 隔離コンテキストで動作し、メイン会話を判断ロジックの情報汚染から守る
+
+### AGENT.md フォーマット
+
+Claude Code のサブエージェント標準フォーマットに準拠する:
+
+```yaml
+---
+name: agent-name
+description: Agent の役割と起動条件（Conductor が委譲先を判断するために使う）
+tools: Read, Grep, Glob, Bash  # 使用可能ツール（任意）
+model: opus | sonnet | haiku    # 使用モデル（任意）
+---
+
+# Agent Name
+
+（指示内容: 責務、使う Skill、判断基準、出力フォーマット）
+```
+
+### SKILL.md フォーマット
+
+```yaml
+---
+name: skill-name
+description: Skill の内容（Agent が読み込み判断に使う）
+user-invocable: false           # true ならユーザーが /<name> で直接呼び出せる
+disable-model-invocation: true  # true ならモデルの自動呼び出しを無効化
+---
+
+# Skill Name
+
+（手順・参照材料）
+```
+
+### Agent への登録方法
+
+`AGENT.md` は Claude Code が自動認識しないため、`/setup` 実行時に `.claude/agents/<name>.md` へコピー登録する。michinushi 本体を更新した後は `/setup` を再実行することで Agent 定義が更新される。
+
 ## 管理モード
 
 プロジェクトの `.claude/config/project.yml` で管理モードを設定する。
