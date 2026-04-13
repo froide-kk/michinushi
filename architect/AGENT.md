@@ -95,7 +95,7 @@ impact-analysis:
     implementer: true | false
     tester: [unit, e2e, security]
     reviewer: true | false
-    docgen: true | false  # 設計書更新の要否
+    docs-update: true | false  # 設計書更新の要否（implementer が doc-yaml-schema Skill を使って実施）
 
 approach-proposal:
   options:

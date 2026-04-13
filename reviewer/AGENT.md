@@ -107,6 +107,6 @@ findings:
     line: <行番号>
     fix: <修正案>
     related-requirement: <関連要件>  # biz 観点の場合
-    delegated-to: implementer | designer | architect | docgen
+    delegated-to: implementer | designer | architect
 summary: <全体サマリ>
 ```
