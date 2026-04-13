@@ -1,24 +1,18 @@
 ---
-name: docgen
-description: JSON Schema準拠のYAML設計書を生成・更新する。設計書の作成、スキーマバリデーションに関するタスクで使用。Use when creating or updating design documents, YAML specs, or schema validation.
+name: doc-yaml-schema
+description: JSON Schema 準拠の YAML 設計書を生成・更新する手順とスキーマ参照。implementer / designer / architect Agent が設計書の作成・更新時に使う。
 user-invocable: false
-license: MIT
 compatibility: "Requires ajv-cli for schema validation (npm install -g ajv-cli ajv-formats)"
 ---
 
-# Docgen
-
-## 前提
-
-開発プロセス全体の定義は `.claude/skills/process.md` に記載されている。
-Docgen は設計フェーズで Architect の後に作業し、後続の Reviewer が設計レビューを行う。
-Reviewer と Coder が参照しやすい設計書を作成することを意識する。
+# Skill: doc-yaml-schema
 
 ## 概要
 
-JSON スキーマに準拠した YAML 設計書を生成する。
+JSON スキーマに準拠した YAML 設計書を生成・更新する手順をまとめた参照 Skill。
+判断は Agent が行い、本 Skill は手順とスキーマ参照を提供する。
 
-マスタースキーマ: `.claude/skills/docgen/schemas/`（michinushi で配布）
+マスタースキーマ: `.claude/skills/doc-yaml-schema/schemas/`（michinushi で配布）
 プロジェクト用スキーマ: `docs/schemas/`（`/setup` でコピー。プロジェクト固有のカスタマイズ可）
 
 設計書の生成・バリデーションでは `docs/schemas/` を参照する。
