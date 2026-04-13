@@ -1,6 +1,6 @@
 ---
 name: setup
-description: AI駆動開発の初期セットアップ。リポジトリの状態を自動検出し、新規/既存に応じたガイダンスを提供。GitHub Project作成、スコープ確認、Skill配置を行う。
+description: AI駆動開発の初期セットアップ。リポジトリの状態を自動検出し、新規/既存に応じたガイダンスを提供。GitHub Project作成、スコープ確認、Skill配置、Agent 登録を行う。
 disable-model-invocation: true
 ---
 
@@ -78,13 +78,13 @@ disable-model-invocation: true
 
 ## Step 2.5: 設計書スキーマの配置
 
-`.claude/skills/docgen/schemas/` にマスタースキーマが存在する場合、`docs/schemas/` にコピーする。
+`.claude/skills/doc-yaml-schema/schemas/` にマスタースキーマが存在する場合、`docs/schemas/` にコピーする。
 
 **`docs/schemas/` が未作成の場合**:
 → ディレクトリ作成し、全スキーマをコピー
 ```bash
 mkdir -p docs/schemas
-cp .claude/skills/docgen/schemas/*.json docs/schemas/
+cp .claude/skills/doc-yaml-schema/schemas/*.json docs/schemas/
 ```
 
 **`docs/schemas/` が既存の場合**:
@@ -129,6 +129,48 @@ $ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project
 **CLAUDE.md が現状と乖離**:
 → 検出情報（パッケージ構成、コマンド等）とCLAUDE.md記載を比較し、差分の更新を提案
 
+## Step 3.5: Agent の登録
+
+michinushi の各 Agent ディレクトリ（`AGENT.md` を含むもの）を Claude Code のサブエージェントとして `.claude/agents/<name>.md` に登録する。
+
+### 対象の検出
+
+`.claude/skills/` 配下を走査し、`AGENT.md` を含むディレクトリを検出する。
+
+```bash
+find .claude/skills -maxdepth 2 -name 'AGENT.md'
+```
+
+### 登録処理
+
+各 `AGENT.md` について:
+
+1. **新規登録**: `.claude/agents/<name>.md` が未存在 → そのままコピー
+2. **既存・未編集**: 既存ファイルが直近のコピーと一致 → マスターで上書き更新
+3. **既存・編集済み**: 既存ファイルがユーザー編集を含む可能性 → 差分を表示し、更新するか確認
+
+```bash
+mkdir -p .claude/agents
+cp .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
+```
+
+`<name>` は `AGENT.md` の frontmatter `name` フィールドの値を使用する（ディレクトリ名と一致するのが原則）。
+
+### 削除対応
+
+`.claude/agents/` に存在するが、michinushi 側で対応する `AGENT.md` が無い Agent については、ユーザー独自定義の可能性があるため削除しない。
+
+### 確認表示
+
+```
+🤖 Agent 登録結果
+  新規登録: 5件
+    - architect, designer, implementer, tester, reviewer
+  更新: 0件
+  ユーザー編集を検出: 0件
+  → .claude/agents/ に登録完了
+```
+
 ## Step 4: 完了報告
 
 ```
@@ -139,6 +181,14 @@ $ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project
   /todo    — タスク一覧（PM視点の構造化報告）
   /setup   — このセットアップ（再実行可能）
 
-専門Skill:
-  docgen — YAML設計書の生成・更新（Claude自動呼び出し）
+登録された Agent (.claude/agents/):
+  architect    — 影響範囲分析・実装計画・工程要否判断
+  designer     — UI/UX 設計
+  implementer  — コード実装・設計書更新
+  tester       — テスト全体の組み立て
+  reviewer     — tech / biz 両観点レビュー
+
+参照 Skill (.claude/skills/):
+  design-*, impl-*, test-*, review-*, doc-yaml-schema
+  各 Agent が必要に応じて参照する
 ```
