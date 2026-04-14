@@ -36,6 +36,7 @@ disable-model-invocation: true
 8. **パッケージ構成**: `packages/` 配下のディレクトリ一覧（モノレポの場合）
 9. **gh auth スコープ**: `gh auth status` で必要スコープを満たすか確認（GitHub モードの場合のみ）
 10. **Copilot Code Review**: 自動レビュー有効化の確認ガイダンス（GitHub モードの場合のみ）
+11. **MCP サーバー**: `.claude/skills/` 配下の全 SKILL.md から `requires-mcp` を収集し、`.mcp.json` の設定状況と突合
 
 ## Step 1.5: 管理モードの選択
 
@@ -137,6 +138,28 @@ $ gh auth refresh -h github.com -s repo,read:project,project,read:org  # project
 **CLAUDE.md が現状と乖離**:
 → 検出情報（パッケージ構成、コマンド等）とCLAUDE.md記載を比較し、差分の更新を提案
 
+**MCP サーバー未設定（オプション）**:
+Skills の `requires-mcp` で必要な MCP と `.mcp.json` の設定を突合し、不足分を表示:
+```
+ℹ 外部連携（オプション）:
+  sentry (required by: analyze-sentry)
+    → 追加しますか？ (はい / スキップ)
+    実行コマンド: claude mcp add --transport http sentry https://mcp.sentry.dev/mcp --scope project
+```
+ユーザーがスキップした場合はそのまま次に進む。外部連携はセットアップの必須項目ではない。
+承認された MCP のみ `claude mcp add` を実行する。
+
+MCP 追加後、`project.yml` の `external-sources` にもソース設定が必要であることを案内する:
+```
+ℹ MCP 追加後、project.yml に外部ソースの設定を追加してください:
+  external-sources:
+    sentry:
+      organization: <org-slug>
+      projects:
+        - slug: <project-slug>
+          directory: <対応ディレクトリ>
+```
+
 ## Step 3.5: Agent の登録
 
 michinushi の各 Agent ディレクトリ（`AGENT.md` を含むもの）を Claude Code のサブエージェントとして `.claude/agents/<name>.md` に登録する。
@@ -215,6 +238,7 @@ diff .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
 
 利用可能なコマンド:
   /run     — タスク実行（/run #33 or /run 自然言語指示）
+  /triage  — 外部ソース分析 & Issue 化
   /todo    — タスク一覧（PM視点の構造化報告）
   /setup   — このセットアップ（再実行可能）
 
@@ -224,6 +248,7 @@ diff .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
   implementer  — コード実装・設計書更新
   tester       — テスト全体の組み立て
   reviewer     — tech / biz 両観点レビュー
+  analyst      — 外部エラーデータの分析
 
 参照 Skill (.claude/skills/):
   design-*, impl-*, test-*, review-*, doc-yaml-schema
@@ -231,6 +256,14 @@ diff .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
 
 michinushi の更新:
   /setup update — 最新版を取得し Agent を再登録
+```
+
+**MCP サーバーを新規追加した場合**:
+MCP ツールの読み込みにはセッション再起動が必要。完了報告の末尾に以下を表示:
+```
+⚠ MCP サーバーを新規追加しました。ツールを有効にするためセッションの再起動が必要です。
+  /exit で終了し、再度 claude を起動してください。
+  ※ OAuth 認証は各スキルの初回実行時に自動で行われます。
 ```
 
 ---

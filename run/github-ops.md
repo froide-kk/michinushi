@@ -180,9 +180,13 @@ Triage → Todo → In Progress → In Review → Done
 
 **PR 作成時**:
 1. PR 本文に `Closes #<Issue番号>` を含める
-2. ステータスを `In Review` に変更
+2. 対象 Issue に `source:*` ラベルがある場合、Issue body からソース固有の ID を抽出し、PR 本文にソースの自動クローズ構文を追加する
+   - `source:sentry`: `Fixes <SENTRY_SHORT_ID>`（Sentry GitHub Integration で自動 resolve）
+   - 他のソースは各 `analyze-*` Skill の仕様に従う
+3. ステータスを `In Review` に変更
 
 ### Issue 作成の基準
 
 - **作成する**: ユーザーの要望・バグ報告・改善提案・派生タスク
 - **作成しない**: 単純な質問・一時的な相談（会話で完結するもの）
+
