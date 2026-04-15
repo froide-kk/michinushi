@@ -57,6 +57,8 @@ gh api graphql -f query='
 }'
 ```
 
+**ページネーション**: `pageInfo.hasNextPage` が `true` の場合、`after: "<endCursor>"` を指定して追加取得する。50件超のプロジェクトではタスク漏れを防ぐため必須。
+
 ### オープンIssue一覧
 ```bash
 gh issue list --repo <owner>/<repo> --state open --limit 200 --json number,title,labels,assignees,createdAt,updatedAt

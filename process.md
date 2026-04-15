@@ -85,6 +85,7 @@ mode:
 | 種別 | 名称 | 担当 |
 |------|-----|------|
 | Skill | `run` (Conductor) | 工程管理・委譲・完了判定 |
+| Skill | `triage` | 外部ソースエラー分析 & Issue 化 |
 | Skill | `todo` | タスク一覧の構造化報告 |
 | Skill | `setup` | 初期セットアップ |
 | Agent | `architect` | 要件分析・影響範囲・実装計画・工程要否判断 |
@@ -92,6 +93,7 @@ mode:
 | Agent | `implementer` | コード実装・設計書更新 |
 | Agent | `tester` | テスト全体の組み立て（unit / e2e / security） |
 | Agent | `reviewer` | コード・設計レビュー（tech / biz 両観点） |
+| Agent | `analyst` | 外部エラーデータの分析（triage から呼び出し） |
 
 各 Agent は `.claude/agents/<name>.md` に登録される（`/setup` で配置）。
 
@@ -101,6 +103,7 @@ mode:
 - 実装系: `impl-coding-conventions`, `doc-yaml-schema`
 - テスト系: `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist`
 - レビュー系: `review-tech-checklist`, `review-biz-checklist`
+- 外部ソース分析系: `analyze-sentry`（将来: `analyze-datadog` 等）
 
 ## 開発フロー
 

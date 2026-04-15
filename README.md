@@ -43,6 +43,7 @@ GitHub Project
 Triage → Todo → In Progress → In Review → Done
 ```
 
+- `/triage` — 外部監視サービス（Sentry 等）のエラーを分析し、GitHub Issue / ローカルタスクとして起票
 - `/run #33` — タスクを読み取り、計画を立て、専門 Skill に作業を委譲
 - `/run 自然言語指示` — タスクが存在しない場合は自動作成してから作業開始
 - `/todo` — タスク全体を PM 視点で分析。要判断・進行中・次の候補・保留中に分類して報告
@@ -149,6 +150,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | Skill | Command | Description |
 |-------|---------|-------------|
 | **run** | `/run #33` `/run 自然言語指示` | タスクの理解・計画・Agent への委譲・進捗管理 (Conductor) |
+| **triage** | `/triage` `/triage sentry` | 外部監視サービスのエラー分析 & Issue 化（analyst Agent に委譲） |
 | **todo** | `/todo` | タスク一覧を PM 視点で構造化して報告（GitHub / ローカル両対応） |
 | **setup** | `/setup` `/setup update` | AI 駆動開発の初期セットアップ・michinushi 本体の更新 |
 
@@ -163,6 +165,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | **implementer** | 実装 | 設計書・既存パターンに忠実なコード実装と設計書更新 |
 | **tester** | テスト | unit / e2e / security テストを必要に応じて組み立て |
 | **reviewer** | レビュー | tech 観点 + biz 観点を統合したコード・設計レビュー |
+| **analyst** | 分析 | 外部エラーデータの分析（triage から呼び出し） |
 
 ### Reference Skills (Agent が必要に応じて参照)
 
@@ -175,6 +178,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | 実装 | `impl-coding-conventions`, `doc-yaml-schema` | implementer |
 | テスト | `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist` | tester |
 | レビュー | `review-tech-checklist`, `review-biz-checklist` | reviewer |
+| 外部ソース分析 | `analyze-sentry` (将来: `analyze-datadog` 等) | analyst |
 
 ## Architecture
 
@@ -182,6 +186,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 .claude/
   skills/                    # <-- This repository (Michinushi)
     run/SKILL.md             # /run (Conductor)
+    triage/SKILL.md          # /triage (外部ソース分析 & Issue 化)
     todo/SKILL.md            # /todo
     setup/SKILL.md           # /setup
     architect/AGENT.md       # Agent 定義（setup で .claude/agents/ にコピー）
@@ -189,10 +194,12 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
     implementer/AGENT.md
     tester/AGENT.md
     reviewer/AGENT.md
+    analyst/AGENT.md
     design-*/SKILL.md        # 設計参照 Skill
     impl-*/SKILL.md          # 実装参照 Skill
     test-*/SKILL.md          # テスト参照 Skill
     review-*/SKILL.md        # レビュー参照 Skill
+    analyze-*/SKILL.md       # 外部ソース分析参照 Skill
     doc-yaml-schema/         # 設計書スキーマ + 生成手順
   agents/                    # /setup で AGENT.md からコピーされる
     architect.md
@@ -200,6 +207,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
     implementer.md
     tester.md
     reviewer.md
+    analyst.md
   config/                    # Project-specific settings (NOT included)
     project.yml              # 管理モード・連携情報
     tech.yml                 # 技術レビューチェック項目
@@ -230,7 +238,7 @@ Skills/Agents はどのプロジェクトでも使える汎用的な指示を記
 
 | File | Used by | Description |
 |------|---------|-------------|
-| `project.yml` | run, todo, setup | 管理モード・連携情報（必須） |
+| `project.yml` | run, todo, setup, triage | 管理モード・連携情報・外部ソース設定（必須） |
 | `tech.yml` | reviewer Agent | 技術レビューのチェック項目 |
 | `biz.yml` | reviewer Agent | 業務レビューのチェック項目 |
 | `security.yml` | tester Agent | セキュリティテストのチェック項目 |
