@@ -110,6 +110,9 @@ architect → (designer) → implementer → tester → reviewer
 1. 該当 Agent を Agent ツール（`subagent_type` 指定）で起動する
 2. 結果を受け取り、次の工程に進めるか確認する
 3. `reviewer` が MUST 指摘を返した場合、`delegated-to` で指定された Agent（implementer / designer / architect）に差し戻す
+4. 差し戻し後の修正が完了したら、**必ず `reviewer` に再レビューを依頼する**
+5. 再レビューで MUST 指摘が残る場合は再度差し戻す（MUST 指摘 0 件になるまでループ）
+6. **MUST 指摘が 0 件になるまでコミットしてはならない**
 
 ### Step 5: 完了処理
 
