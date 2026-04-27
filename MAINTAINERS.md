@@ -5,11 +5,12 @@ Michinushi のメンテナンス手順。
 ## リポジトリ構成
 
 ```
-froide-kk/michinushi           # Skills/Agents 公開リポジトリ（public）
-<org>/<your-project>           # 開発元リポジトリ（private）
-  └── .claude/skills/          # ← michinushi と subtree で同期（Skills + Agent ソース）
+froide-kk/michinushi           # Skills/Agents 公開リポジトリ（public、本リポジトリ）
+
+<利用者プロジェクト>
+  └── .claude/skills/          # michinushi 配布物を curl で展開
   └── .claude/agents/          # /setup が AGENT.md からコピー登録
-  └── .claude/config/          # プロジェクト固有（同期対象外）
+  └── .claude/config/          # プロジェクト固有（配布対象外）
 ```
 
 ## ブランチ保護
@@ -23,44 +24,21 @@ main ブランチは保護されています。
 | PR 作成 | OK | OK | OK |
 | PR マージ（1 approval 必要） | OK | OK | - |
 
-admin は `subtree push` で main に直接同期できます。
+## 開発フロー
 
-## Skills の同期
-
-### 前提
-
-開発元リポジトリにリモートが追加されていること:
+michinushi 本体に変更を加える場合は、本リポジトリを直接 clone して開発します。
 
 ```bash
-# 確認
-git remote -v | grep michinushi
-
-# 未追加の場合
-git remote add michinushi git@github.com:froide-kk/michinushi.git
+git clone git@github.com:froide-kk/michinushi.git
+cd michinushi
+git checkout -b <feat|fix|docs>/<topic>
+# 編集
+git commit -m "..."
+git push -u origin <branch>
+gh pr create
 ```
 
-### 開発元 → michinushi（公開）
-
-開発元で Skills を変更・コミットした後:
-
-```bash
-git subtree push --prefix=.claude/skills michinushi main
-```
-
-**注意**:
-- 開発元のコミットが `.claude/skills/` 配下を含んでいれば、その差分だけが michinushi に反映される
-- `.claude/config/` や他のファイルは同期されない（prefix 指定で自動除外）
-- コミット履歴は skills に関連するものだけが michinushi に渡る
-
-### michinushi → 開発元（取り込み）
-
-外部からの PR がマージされた場合など:
-
-```bash
-git subtree pull --prefix=.claude/skills michinushi main --squash
-```
-
-`--squash` により michinushi 側の履歴は 1 コミットにまとめられる。
+利用者プロジェクト側では `/setup update` を実行することで、最新の main から `.claude/skills/` を取得できます（内部で curl + tar 展開）。
 
 ## Skill / Agent の追加・変更
 
@@ -81,7 +59,7 @@ michinushi の機能は2種類で構成される:
 - [ ] どの Agent が使う Skill かを明確化（必要なら Agent 側の `使う Skill` セクションを更新）
 - [ ] README.md の参照 Skill 表を更新
 - [ ] `process.md` の参照 Skill 一覧を更新
-- [ ] 開発元でコミット後、`subtree push` で同期
+- [ ] 本リポジトリでブランチを切り、コミット → PR → マージ
 
 ### 新規 Agent 追加時のチェックリスト
 
@@ -92,7 +70,7 @@ michinushi の機能は2種類で構成される:
 - [ ] Conductor (`run/SKILL.md`) の委譲先 Agent 表を更新
 - [ ] `process.md` のエージェント構成・開発フローを更新
 - [ ] README.md の Agents 表を更新
-- [ ] 開発元でコミット後、`subtree push` で同期
+- [ ] 本リポジトリでブランチを切り、コミット → PR → マージ
 
 ### Skill / Agent 設計の原則
 
@@ -122,23 +100,3 @@ michinushi の機能は2種類で構成される:
 4. **Skill vs Config の分離** — プロジェクト固有の内容が混入していないか
 5. **README / process.md 更新** — 新規 Skill / Agent の場合、対応表が更新されているか
 
-## トラブルシューティング
-
-### subtree push が rejected される
-
-```
-! [rejected] ... -> main (non-fast-forward)
-```
-
-michinushi 側に開発元にない変更がある場合に発生。先に pull する:
-
-```bash
-git subtree pull --prefix=.claude/skills michinushi main --squash
-# コンフリクトがあれば解決してコミット
-git subtree push --prefix=.claude/skills michinushi main
-```
-
-### subtree push が遅い
-
-subtree push は全コミット履歴をスキャンするため、リポジトリが大きくなると遅くなる。
-現状は許容範囲だが、将来的に問題になる場合は `git subtree split --prefix=.claude/skills --rejoin` で高速化できる。
