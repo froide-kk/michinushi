@@ -231,6 +231,15 @@ diff .claude/skills/<agent-dir>/AGENT.md .claude/agents/<name>.md
   → .claude/agents/ に登録完了
 ```
 
+新規登録または上書きが 1件以上ある場合は、続けて以下を案内する:
+
+```
+⚠ Claude Code を再起動してください
+  新しい Agent / Skill 定義は起動時にのみ読み込まれます。
+  再起動するまで今回の変更は反映されません。
+  （/agents コマンドは一覧表示のみで、再読込は行いません）
+```
+
 ## Step 4: 完了報告
 
 ```
@@ -339,6 +348,17 @@ curl -sL https://github.com/froide-kk/michinushi/archive/refs/heads/main.tar.gz 
 Agent 再登録: 5件中 N件更新
   → ユーザー編集のため保留: <あれば一覧>
 ```
+
+Skill / Agent に変更があった場合は、続けて以下を案内する:
+
+```
+⚠ Claude Code を再起動してください
+  更新された Skill / Agent 定義は起動時にのみ読み込まれます。
+  再起動するまで /setup update の変更は反映されません。
+  （/agents コマンドは一覧表示のみで、再読込は行いません）
+```
+
+> Skill / Agent の定義は Claude Code 起動時に読み込まれるため、`/setup update` 後は再起動が必須。再起動を忘れると、古い定義のまま動作してしまう。
 
 ### 注意
 
