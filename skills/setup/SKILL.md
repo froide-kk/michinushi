@@ -167,7 +167,7 @@ MCP 追加後、`project.yml` の `external-sources` にもソース設定が必
 ### 配置の検出
 
 ```bash
-find .claude/agents -maxdepth 2 -name 'AGENT.md'
+find .claude/agents -name 'AGENT.md'
 ```
 
 期待される Agent: `architect`, `designer`, `implementer`, `tester`, `reviewer`, `analyst`

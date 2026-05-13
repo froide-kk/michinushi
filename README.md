@@ -304,6 +304,8 @@ model: opus | sonnet | haiku    # 使用モデル（任意）
 
 ## Migration Guide (from previous versions)
 
+> **複数リリースをまたぐ場合**: 2026-04 リリース以前から移行する場合は、下の「2026-04 リリース」→「2026-05 リリース」の順に実行してください。
+
 ### 2026-05 リリース: agents/ と skills/ のディレクトリ分割
 
 旧構成では Agent も `.claude/skills/<name>/AGENT.md` に置かれていましたが、新構成では `.claude/agents/<name>/AGENT.md` に分離されました。
@@ -340,13 +342,13 @@ model: opus | sonnet | haiku    # 使用モデル（任意）
 
 #### 2. 旧 Skill の削除
 
-`/setup update` は最新の配布物を反映しますが、旧構成のディレクトリは自動では削除されないため、以下を手動で削除してください:
+`/setup update` は最新の配布物を反映しますが、旧構成のディレクトリは自動では削除されないため、以下を手動で削除してください（2026-04 リリース時点での移行先パスを示しています。続けて 2026-05 リリースの手順を実行すると、Agent は `.claude/agents/<name>/AGENT.md` に移動します）:
 
 ```
-.claude/skills/architect/SKILL.md  → .claude/agents/architect/AGENT.md (中身も再構成)
-.claude/skills/coder/               → .claude/agents/implementer/AGENT.md
+.claude/skills/architect/SKILL.md  → .claude/skills/architect/AGENT.md (中身も再構成)
+.claude/skills/coder/               → .claude/skills/implementer/AGENT.md
 .claude/skills/docgen/              → .claude/skills/doc-yaml-schema/ (Skill にリネーム)
-.claude/skills/ui-designer/         → .claude/agents/designer/AGENT.md
+.claude/skills/ui-designer/         → .claude/skills/designer/AGENT.md
 .claude/skills/unit-tester/         → 削除（tester Agent + test-* Skill に統合）
 .claude/skills/e2e-tester/          → 削除
 .claude/skills/security-tester/     → 削除
