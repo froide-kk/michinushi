@@ -3,7 +3,7 @@
 ## 概要
 
 外部監視サービスのエラーを分析し、GitHub Issue として起票するワークフロー。
-手順の詳細は `triage/SKILL.md`、`analyst/AGENT.md`、`analyze-*/SKILL.md` を参照。
+手順の詳細は `skills/triage/SKILL.md`、`agents/analyst/AGENT.md`、`skills/analyze-*/SKILL.md` を参照。
 
 ## コマンド体系における位置づけ
 
