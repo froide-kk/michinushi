@@ -10,9 +10,10 @@ froide-kk/michinushi           # Skills/Agents 公開リポジトリ（public、
   └── skills/                  # SKILL.md を含む Skill 定義 + process.md
 
 <利用者プロジェクト>
-  └── .claude/agents/          # michinushi の agents/ を curl で展開
-  └── .claude/skills/          # michinushi の skills/ を curl で展開
-  └── .claude/config/          # プロジェクト固有（配布対象外）
+  └── .claude/
+       ├── agents/             # michinushi の agents/ を curl で展開
+       ├── skills/             # michinushi の skills/ を curl で展開
+       └── config/             # プロジェクト固有（配布対象外）
 ```
 
 ## ブランチ保護
