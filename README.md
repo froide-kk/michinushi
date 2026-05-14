@@ -160,7 +160,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | Category | Skill | Used by |
 |----------|-------|---------|
 | 設計 | `design-impact-analysis`, `design-impl-plan-format`, `design-adr-format` | architect |
-| UI | `design-ui-patterns` | designer |
+| UI | `design-ui-patterns`, `design-figma-fetch` (要 Figma MCP) | designer |
 | 実装 | `impl-coding-conventions`, `doc-yaml-schema` | implementer |
 | テスト | `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist` | tester |
 | レビュー | `review-tech-checklist`, `review-biz-checklist` | reviewer |

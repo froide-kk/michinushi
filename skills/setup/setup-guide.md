@@ -118,6 +118,38 @@ claude mcp list
 claude mcp remove <name>
 ```
 
+### Figma MCP のセットアップ（design-figma-fetch Skill 使用時）
+
+`design-figma-fetch` Skill は Figma MCP を使用する。デフォルトでは **Figma 公式 Dev Mode MCP Server** を前提とする。
+
+#### 公式 Dev Mode MCP Server（推奨）
+
+前提:
+- Figma Professional / Organization / Enterprise プラン（Dev Mode 有効）
+
+手順:
+1. Figma Desktop アプリを起動
+2. メニューから `Preferences` → `Enable Dev Mode MCP Server` を ON
+3. Figma Desktop が `http://127.0.0.1:3845/sse` で待ち受けを開始する
+4. Claude Code 側で MCP を登録:
+   ```bash
+   claude mcp add --transport http figma http://127.0.0.1:3845/sse --scope project
+   ```
+5. `claude mcp list` で `figma` が表示されることを確認
+
+Figma Desktop が起動していないと MCP に接続できないため、利用時は必ず Figma Desktop を立ち上げておく。
+
+#### 無料プラン向け代替: サードパーティ MCP
+
+Dev Mode を持たない場合は、Figma Personal Access Token を使うサードパーティ MCP（例: [Framelink Figma MCP Server](https://github.com/GLips/Figma-Context-MCP)）で代替できる。
+
+手順の概要:
+1. Figma の Settings → Personal Access Tokens から token を発行（`File content` スコープ）
+2. 環境変数 `FIGMA_API_KEY` に設定
+3. サードパーティ MCP の README に従って `claude mcp add` で登録
+
+> サードパーティ MCP を使う場合、`design-figma-fetch` の手順内のツール名（`mcp__figma__get_code` 等）は実装に合わせて読み替えが必要。具体的なツール対応は MCP 側のドキュメントを参照。
+
 ## 5. プロジェクト固有の準備（該当する場合）
 
 プロジェクトの `CLAUDE.md` に記載された開発環境セットアップを実行する。
