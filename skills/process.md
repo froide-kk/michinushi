@@ -99,7 +99,7 @@ mode:
 
 参照 Skill（Agent が必要に応じて使う）:
 
-- 設計系: `design-impact-analysis`, `design-impl-plan-format`, `design-adr-format`, `design-ui-patterns`
+- 設計系: `design-impact-analysis`, `design-impl-plan-format`, `design-adr-format`, `design-ui-patterns`, `design-figma-fetch`（要 Figma MCP）
 - 実装系: `impl-coding-conventions`, `doc-yaml-schema`
 - テスト系: `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist`
 - レビュー系: `review-tech-checklist`, `review-biz-checklist`
