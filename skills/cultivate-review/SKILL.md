@@ -1,6 +1,6 @@
 ---
 name: cultivate-review
-description: review-feedback.yml に蓄積された未処理 observation を起点に、reviewer 領域の観点を育成する手順。cultivator Agent が使う。ユーザーと対話しながら promoted / rejected / deferred / delete を確定し、cultivation-log への通史追記と昇格先 config への更新 PR 提案を行う。
+description: review-feedback.yml に蓄積された未処理 observation を起点に、reviewer 領域の観点を育成する手順。cultivator Agent が使う。ユーザーと対話しながら promoted / rejected / deferred / deleted を確定し、cultivation-log への通史追記と昇格先 config への更新 PR 提案を行う。
 user-invocable: false
 ---
 
@@ -22,6 +22,41 @@ cultivate-review は参照 Skill である。cultivator Agent が呼び出し、
 
 ## データモデル
 
+### category / severity の選定基準
+
+reviewer Agent が新規 observation を作成するとき、`category` と `severity` は以下の基準で選定する。cultivator がグルーピング・推奨昇格先決定で参照するため、reviewer ごとに採用基準がブレないよう統一する。
+
+#### category の選定
+
+| category | 該当する観点 |
+|---|---|
+| `security` | 認証・認可・入力検証・インジェクション・機密情報の取り扱い |
+| `type-safety` | 型エラー、any の濫用、null/undefined の扱い、型整合性 |
+| `docs` | 文書整合性、ツリー表記、Migration Guide、コマンド例の正しさ |
+| `consistency` | 命名規則、ファイル配置、既存パターンとの整合 |
+| `perf` | N+1、不要な再計算、同期処理、キャッシュ |
+| `test` | テスト不足、テスト失敗の原因、カバレッジ |
+| `other` | 上記いずれにも当てはまらない |
+
+複数カテゴリに該当しうる場合は **観点の主目的** から判断する（例: セキュリティ起因のテスト不足は `security`、テスト記法のミスは `test`）。判断に迷う場合は `other` を選び、cultivator のグルーピング時に再分類を任せる。
+
+#### severity の選定
+
+reviewer Agent 自身の判断、または Copilot コメントから推定する:
+
+| severity | 基準 |
+|---|---|
+| `MUST` | バグ、セキュリティリスク、要件未達、CI 失敗の原因。**修正しないと品質に明確な悪影響** |
+| `SHOULD` | 保守性・可読性・将来リスク、既存パターンからの逸脱。**改善推奨だが必須ではない** |
+| `NIT` | スタイル、命名、コメント不足、軽微な書式の指摘 |
+
+Copilot コメントの severity マッピング:
+- Copilot が「致命的」「壊れる」「動かない」を示唆 → `MUST`
+- Copilot が「推奨」「望ましい」「整合性のため」を示唆 → `SHOULD`
+- Copilot が「軽微」「揃えると良い」「統一すると」を示唆 → `NIT`
+
+迷う場合は **一段下** を選ぶ（`MUST` か `SHOULD` で迷ったら `SHOULD`）。`MUST` は過剰に振らない。
+
 ### review-feedback.yml の構造
 
 ```yaml
@@ -41,7 +76,6 @@ observations:
         date: <ISO 8601 日付>
         snippet: <該当箇所の抜粋>
         comment-url: <PR コメント URL（あれば）>
-    related: [<related observation id>, ...]
 ```
 
 #### id 採番ルール
@@ -70,12 +104,12 @@ observations:
 
 ##### 削除済み id の不再利用
 
-- `promoted` / `rejected` / `delete` で yml から削除された hash6 は **再利用しない**（cultivation-log に参照として残るため）
+- `promoted` / `rejected` / `deleted` で yml から削除された hash6 は **再利用しない**（cultivation-log に参照として残るため）
 - hash6 はランダム生成なので、削除済み id を意識せず新規生成すれば事実上衝突しない（base32 6 文字 = 約 10 億通り）
 
 ### cultivation-log.md の構造
 
-時系列降順。`Promoted` と `Rejected` のエントリを記録する（`deferred` / `delete` は記録しない）。フォーマットは本ファイル下部の「cultivation-log エントリテンプレート」を参照。
+時系列降順。`Promoted` と `Rejected` のエントリを記録する（`deferred` / `deleted` は記録しない）。フォーマットは本ファイル下部の「cultivation-log エントリテンプレート」を参照。
 
 ## 手順
 
@@ -130,7 +164,7 @@ observations を **occurrence-count の降順** で順番に処理する。各 o
   1. promoted — 昇格先 config に追加（次に昇格先を聞きます）
   2. rejected — 却下（次に理由を聞きます）
   3. deferred — 次回の cultivate で再議論（yml に残す）
-  4. delete   — 誤検出 / もう価値が無い（yml から削除、log には残さない）
+  4. deleted  — 誤検出 / もう価値が無い（yml から削除、log には残さない）
 ```
 
 **3-3. 選択別の追加ヒアリング**:
@@ -140,14 +174,14 @@ observations を **occurrence-count の降順** で順番に処理する。各 o
 | `promoted` | 昇格先（`tech.yml` / `biz.yml` / 他 config）と rationale（採用根拠） |
 | `rejected` | rationale（却下理由） |
 | `deferred` | 不要（yml に残すだけ） |
-| `delete` | 不要（yml から削除、log にも残さない） |
+| `deleted` | 不要（yml から削除、log にも残さない） |
 
 **昇格先の提示と新規 config 作成**:
 
 `promoted` 選択時は、`.claude/config/` 配下に存在する **すべての yml ファイルを動的に列挙** してユーザーに提示する（`tech.yml` / `biz.yml` だけでなく `security.yml` / `ui.yml` / `design.yml` など、リポジトリの状態に応じてその場で列挙される）。
 
 ```bash
-ls .claude/config/*.yml 2>/dev/null | grep -v '^\.claude/config/project\.yml$' | grep -v 'review-feedback\.yml$'
+ls .claude/config/*.yml 2>/dev/null | grep -v '^\.claude/config/project\.yml$' | grep -v '^\.claude/config/review-feedback\.yml$'
 ```
 
 > `project.yml`（管理モード設定）と `review-feedback.yml`（cultivator 自身が読み書きするバッファ）は昇格先から除外する。
@@ -244,7 +278,7 @@ cultivator Agent によって観点が昇格・却下されるたびに追記さ
 |---|---|
 | `promoted` | 削除 |
 | `rejected` | 削除 |
-| `delete` | 削除 |
+| `deleted` | 削除 |
 | `deferred` | **残す**（次回の cultivate で再議論される） |
 
 未処理（Step 3 で中断された）observation も `deferred` 扱いで残す。
@@ -285,7 +319,7 @@ PR 作成は `gh pr create` を使う。base は `main`。
   - promoted: <数>件
   - rejected: <数>件
   - deferred: <数>件（次回 cultivate で再議論）
-  - delete: <数>件
+  - deleted: <数>件
 
 cultivation-log への追記: <数>件
 review-feedback.yml からの削除: <数>件（deferred <数>件は残存）

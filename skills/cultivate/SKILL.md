@@ -35,7 +35,7 @@ disable-model-invocation: true
   - `.claude/config/review-feedback.yml`（処理済み observation の削除）
   - 昇格先 config（`tech.yml` / `biz.yml` 等）への更新 PR
 
-cultivator が `cultivate-review` Skill の手順に従って各 observation について `promoted` / `rejected` / `deferred` / `delete` を確定する。
+cultivator が `cultivate-review` Skill の手順に従って各 observation について `promoted` / `rejected` / `deferred` / `deleted` を確定する。
 
 ### Step 3: 結果の中継
 
