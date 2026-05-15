@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: コード・設計を技術観点と業務観点の両方からレビューする。MUST/SHOULD/NIT で重大度を分類し、修正案を具体的に示す。Conductor が設計フェーズおよび実装フェーズで起動する。
-tools: Read, Grep, Glob, Bash
+tools: Read, Edit, Write, Grep, Glob, Bash
 ---
 
 # Reviewer

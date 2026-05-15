@@ -88,7 +88,7 @@ mode:
 | Skill | `triage` | 外部ソースエラー分析 & Issue 化 |
 | Skill | `todo` | タスク一覧の構造化報告 |
 | Skill | `setup` | 初期セットアップ |
-| Skill | `cultivate` | プロジェクト固有 config の育成セッション起動 |
+| Skill | `cultivate` | プロジェクト固有 config の育成セッション起動（cultivator Agent に委譲） |
 | Agent | `architect` | 要件分析・影響範囲・実装計画・工程要否判断 |
 | Agent | `designer` | UI レイアウト・UX 設計・インタラクション設計 |
 | Agent | `implementer` | コード実装・設計書更新 |

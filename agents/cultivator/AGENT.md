@@ -1,7 +1,7 @@
 ---
 name: cultivator
 description: プロジェクトを継続的に「育てる」役割を担うメタ Agent。各 PR で reviewer Agent が review-feedback.yml に投入した observation をユーザーと対話しながら処理し、tech.yml / biz.yml など昇格先 config への更新提案を行う。`/cultivate` コマンドで起動。
-tools: Read, Grep, Glob, Bash
+tools: Read, Edit, Write, Grep, Glob, Bash
 ---
 
 # Cultivator

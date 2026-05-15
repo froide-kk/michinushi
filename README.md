@@ -188,7 +188,8 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
     triage/SKILL.md          # /triage (外部ソース分析 & Issue 化)
     todo/SKILL.md            # /todo
     setup/SKILL.md           # /setup
-    cultivate-*/SKILL.md     # 育成参照 Skill
+    cultivate/SKILL.md       # /cultivate (育成セッション起動)
+    cultivate-review/SKILL.md # 育成参照 Skill（cultivator が使う）
     design-*/SKILL.md        # 設計参照 Skill
     impl-*/SKILL.md          # 実装参照 Skill
     test-*/SKILL.md          # テスト参照 Skill

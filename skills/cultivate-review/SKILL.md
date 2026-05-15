@@ -44,6 +44,16 @@ observations:
     related: [<related observation id>, ...]
 ```
 
+#### id 採番ルール
+
+- **形式**: `<category>-<slug>-<連番>`（例: `docs-tree-syntax-001`）
+- **slug**: summary を英数小文字 + ハイフンに正規化（観点が一意に識別できる短いフレーズ）
+- **連番**: **カテゴリ + slug の組み合わせ単位**で 001 から採番
+  - 同じ `category-slug` の組み合わせが既に yml にあれば、それは同じ観点なので新規 id ではなく **既存 observation に detection を append** する
+  - 同じ `category-slug` が `cultivation-log.md` にもある場合（過去に処理済み）、連番をインクリメントして新規 observation として扱う（過去判断は古いコンテキストなので再議論する）
+- **削除済み id は再利用しない**: `promoted` / `rejected` で yml から削除された id は cultivation-log に参照として残るため、再利用すると通史の整合性が壊れる。新規 observation は **yml + cultivation-log を通じて使われたことのある最大連番 +1** を採番する
+- **並行 PR での競合**: 同じカテゴリで複数 reviewer が同時に新規 observation を作る場合、git merge コンフリクトとして検出される。コンフリクト解決時に連番を振り直す（人間が判定）。当面はこの運用で割り切る
+
 ### cultivation-log.md の構造
 
 時系列降順。`Promoted` と `Rejected` のエントリを記録する（`deferred` / `delete` は記録しない）。フォーマットは本ファイル下部の「cultivation-log エントリテンプレート」を参照。
@@ -113,6 +123,36 @@ observations を **occurrence-count の降順** で順番に処理する。各 o
 | `deferred` | 不要（yml に残すだけ） |
 | `delete` | 不要（yml から削除、log にも残さない） |
 
+**昇格先の提示と新規 config 作成**:
+
+`promoted` 選択時は、`.claude/config/` 配下に存在する既存の昇格先候補（`tech.yml`, `biz.yml` 等）を **実在ファイルとして列挙** してユーザーに提示する。提示例:
+
+```
+昇格先を選んでください:
+  1. .claude/config/tech.yml (既存)
+  2. .claude/config/biz.yml (既存)
+  3. その他（新規 config を作成）
+```
+
+「その他」が選ばれた場合、新規 config ファイル名（例: `.claude/config/coding-style.yml`）をユーザーから聞き取り、以下の最小テンプレートで新規作成する:
+
+```yaml
+# .claude/config/<file-name>.yml
+# プロジェクト固有のチェック項目。cultivator Agent が育成提案で追記する。
+
+schema-version: 1
+items:
+  - id: <category>-<slug>-<連番>      # review-feedback.yml の id と整合させる
+    summary: <観点>
+    category: <カテゴリ>
+    severity: MUST | SHOULD | NIT
+    rationale: <なぜ採用したか>
+    promoted-from: <observation id>
+    promoted-at: <ISO 8601 日付>
+```
+
+既存の config に追記する場合も、上記 `items[]` のフォーマットに従って末尾に append する。
+
 **3-4. 中断オプション**:
 
 各 observation の処理後、ユーザーに「続けますか? / 一旦止めますか?」を確認する選択肢を提供する。`stop` を選択された場合、未処理の observation はすべて `deferred` 扱いで Step 4 に進む。
@@ -121,7 +161,14 @@ observations を **occurrence-count の降順** で順番に処理する。各 o
 
 `promoted` / `rejected` になった observation について `docs/cultivation-log.md` に追記する。
 
-時系列降順を維持するため、**ファイルの先頭近く**（タイトルとイントロの直下）に **今回のセッション日付セクション**を挿入し、その下に各エントリを書く。
+時系列降順を維持するため、**ファイルの先頭近く**（タイトルとイントロの直下）に追記する。具体的なルール:
+
+- **同日の既存セクション (`## YYYY-MM-DD`) が既にあれば、そのセクションの末尾に追記** する（新規セクションを作らない）
+- **同日のセクションが無ければ**、タイトル / イントロ直下に **新規セクションを挿入** する
+- 結果として、同じ日に複数回 `/cultivate` が実行されても `## YYYY-MM-DD` セクションは 1 つだけ存在し、その中にエントリが時系列に並ぶ
+- 異なる日同士は降順（新しい日付が上）
+
+> **「append-only」の意味**: 既存エントリ（過去の `Promoted` / `Rejected` 記述）を **書き換えない・消さない** という意味。新エントリの挿入位置は時系列順を保つために先頭側になるが、これは「既存を書き換える」操作ではないため append-only 原則と矛盾しない。
 
 #### cultivation-log エントリテンプレート
 
@@ -229,7 +276,7 @@ review-feedback.yml からの削除: <数>件（deferred <数>件は残存）
 
 ## 注意
 
-- **judgement を持たない**: cultivator が「私はこれを promoted すべきだと思います」と言わない。観点と detections を提示し、ユーザーが決める
+- **判断を持たない**: cultivator が「私はこれを promoted すべきだと思います」と言わない。観点と detections を提示し、ユーザーが決める
 - **append-only**: cultivation-log の既存エントリは書き換えない。判断が変わった場合は新しいエントリとして追記する
-- **rationale は必ず聞く**: `promoted` / `rejected` の場合、理由を必ずユーザーから引き出す（空のままにしない）
+- **rationale は必ず聞く**: `promoted` / `rejected` の場合、根拠（採用根拠 / 却下理由）を必ずユーザーから引き出す（空のままにしない）
 - **deferred の蓄積**: deferred ばかりが yml に溜まる場合、ユーザーに「これらを定期的に見直しますか?」と問う。永久に判断保留が続くのは健全ではない
