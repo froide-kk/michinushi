@@ -46,13 +46,32 @@ observations:
 
 #### id 採番ルール
 
-- **形式**: `<category>-<slug>-<連番>`（例: `docs-tree-syntax-001`）
+- **形式**: `<category>-<slug>-<hash6>`（例: `docs-tree-syntax-a3f2k1`）
 - **slug**: summary を英数小文字 + ハイフンに正規化（観点が一意に識別できる短いフレーズ）
-- **連番**: **カテゴリ + slug の組み合わせ単位**で 001 から採番
-  - 同じ `category-slug` の組み合わせが既に yml にあれば、それは同じ観点なので新規 id ではなく **既存 observation に detection を append** する
-  - 同じ `category-slug` が `cultivation-log.md` にもある場合（過去に処理済み）、連番をインクリメントして新規 observation として扱う（過去判断は古いコンテキストなので再議論する）
-- **削除済み id は再利用しない**: `promoted` / `rejected` で yml から削除された id は cultivation-log に参照として残るため、再利用すると通史の整合性が壊れる。新規 observation は **yml + cultivation-log を通じて使われたことのある最大連番 +1** を採番する
-- **並行 PR での競合**: 同じカテゴリで複数 reviewer が同時に新規 observation を作る場合、git merge コンフリクトとして検出される。コンフリクト解決時に連番を振り直す（人間が判定）。当面はこの運用で割り切る
+- **hash6**: ランダムな 6 文字（base32 小文字、`a-z2-7`）を生成。並行 PR で同じ `category-slug` の新規 observation が衝突しないよう、連番ではなく ID 内に独立した識別子を持たせる
+
+##### 既存判定の順序
+
+新規検出時、reviewer Agent は以下の順で判定する:
+
+1. **同じ `category-slug` の組み合わせが `review-feedback.yml` にあるか?**
+   - **Yes** → 既存 observation の `detections` に append し `occurrence-count` を +1。新規 id は採番しない
+   - **No** → 次へ
+2. **同じ `category-slug` が `cultivation-log.md` にあるか?**（過去に `promoted` / `rejected` 済み）
+   - **Yes** → **新しい hash6 を生成して新規 observation として yml に追加**。過去の判断は古いコンテキストでなされたものなので再議論する。元 log エントリは書き換えない（append-only）
+   - **No** → 次へ
+3. **新規 observation を作成**: `<category>-<slug>-<新規 hash6>` で yml に追加
+
+##### 衝突回避
+
+- hash6 はランダム生成のため、同じ `category-slug` で複数 PR が並行投入しても **異なる id が振られる**
+- 結果として cultivate 実行時に「**同じ category-slug を持つ複数 observation が yml に並んでいる**」状態が起こり得る。これは Step 2 のグルーピングで自然に検出されるため、cultivator がユーザーに「これらは同じ観点ですか?」と統合判断を問う
+- 統合時は新しい hash6 を 1 つ選び、他方の detections をマージして occurrence-count を合算、余った id は削除
+
+##### 削除済み id の不再利用
+
+- `promoted` / `rejected` / `delete` で yml から削除された hash6 は **再利用しない**（cultivation-log に参照として残るため）
+- hash6 はランダム生成なので、削除済み id を意識せず新規生成すれば事実上衝突しない（base32 6 文字 = 約 10 億通り）
 
 ### cultivation-log.md の構造
 
@@ -93,7 +112,7 @@ observations を **occurrence-count の降順** で順番に処理する。各 o
 
 ```
 🔍 観点 (N/M):
-  id: docs-tree-syntax-001
+  id: docs-tree-syntax-a3f2k1
   summary: ツリー表記で同階層に複数要素ある場合、中間は ├── 最後は └── を使う
   category: docs
   severity: NIT
@@ -125,14 +144,27 @@ observations を **occurrence-count の降順** で順番に処理する。各 o
 
 **昇格先の提示と新規 config 作成**:
 
-`promoted` 選択時は、`.claude/config/` 配下に存在する既存の昇格先候補（`tech.yml`, `biz.yml` 等）を **実在ファイルとして列挙** してユーザーに提示する。提示例:
+`promoted` 選択時は、`.claude/config/` 配下に存在する **すべての yml ファイルを動的に列挙** してユーザーに提示する（`tech.yml` / `biz.yml` だけでなく `security.yml` / `ui.yml` / `design.yml` など、リポジトリの状態に応じてその場で列挙される）。
+
+```bash
+ls .claude/config/*.yml 2>/dev/null | grep -v '^\.claude/config/project\.yml$' | grep -v 'review-feedback\.yml$'
+```
+
+> `project.yml`（管理モード設定）と `review-feedback.yml`（cultivator 自身が読み書きするバッファ）は昇格先から除外する。
+
+提示例（実行時のディレクトリ状態に応じて自動列挙）:
 
 ```
 昇格先を選んでください:
-  1. .claude/config/tech.yml (既存)
-  2. .claude/config/biz.yml (既存)
-  3. その他（新規 config を作成）
+  1. .claude/config/tech.yml (既存) — 技術レビューのチェック項目
+  2. .claude/config/biz.yml (既存) — 業務レビューのチェック項目
+  3. .claude/config/security.yml (既存) — セキュリティテストのチェック項目
+  4. .claude/config/ui.yml (既存) — UI 方針
+  5. .claude/config/design.yml (既存) — 設計書規約
+  6. その他（新規 config を作成）
 ```
+
+observation の `category` から **推奨昇格先** を提示しても良い（例: `category: security` なら security.yml を推奨）。ただし最終判断はユーザー。
 
 「その他」が選ばれた場合、新規 config ファイル名（例: `.claude/config/coding-style.yml`）をユーザーから聞き取り、以下の最小テンプレートで新規作成する:
 

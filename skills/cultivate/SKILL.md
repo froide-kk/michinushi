@@ -37,25 +37,11 @@ disable-model-invocation: true
 
 cultivator が `cultivate-review` Skill の手順に従って各 observation について `promoted` / `rejected` / `deferred` / `delete` を確定する。
 
-### Step 3: 結果の集約と報告
+### Step 3: 結果の中継
 
-cultivator から返ってきた結果（処理件数・昇格 PR の URL）をユーザーに報告する。
+cultivator Agent から返ってきた結果（処理件数・cultivation-log への追記件数・昇格 PR の URL 等）を **そのままユーザーに中継** する。
 
-```
-🌱 /cultivate セッション完了
-
-処理した observation: N件
-  - promoted: <数>件
-  - rejected: <数>件
-  - deferred: <数>件（次回 cultivate で再議論）
-  - delete: <数>件
-
-cultivation-log への追記: <数>件
-review-feedback.yml からの削除: <数>件
-
-提案 PR:
-  - <昇格先>: https://github.com/.../pull/<番号>
-```
+結果フォーマットの正本は `cultivate-review` Skill の Step 7 にある。`/cultivate` は二重定義を避けるため、ここではフォーマットを再掲しない。フォーマットの更新が必要になった場合は `cultivate-review/SKILL.md` を編集すれば本 Skill の出力にも反映される。
 
 ## 関連
 

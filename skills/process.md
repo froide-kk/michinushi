@@ -139,8 +139,10 @@ mode:
 
 **任意工程: Retrospective（育成）**
 
-PR マージ後、または手動で `/cultivate` を実行することで cultivator Agent が起動する。
+PR マージ後など、適切なタイミングで **手動で `/cultivate` を実行** することで cultivator Agent が起動する。
 PR レビュー対応時に reviewer Agent が `.claude/config/review-feedback.yml` に投入した観点を、ユーザーと対話しながら整理し、`tech.yml` / `biz.yml` 等への昇格を提案する。詳細は `cultivate-review` Skill を参照。
+
+> 現時点では Conductor (`run` Skill) に PR マージ後の自動フックは無く、`/cultivate` は手動コマンドのみ。将来的に Conductor のフロー末尾に自動起動を組み込むかは別途検討する。
 
 ## 各 Agent の責務と後続への配慮
 

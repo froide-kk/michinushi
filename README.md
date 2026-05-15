@@ -69,7 +69,7 @@ Triage → Todo → In Progress → In Review → Done
 ```
 
 ※ designer は UI 変更を含む場合のみ。architect が判断します。
-※ PR マージ後に `/cultivate` で **cultivator Agent** による育成セッションを起動できます（任意工程）。reviewer が PR レビュー対応時に蓄積した観点を、ユーザーと対話しながら整理し、プロジェクト固有 config（`tech.yml` / `biz.yml`）へ反映します。
+※ PR マージ後など適切なタイミングで `/cultivate` を **手動実行** すると、**cultivator Agent** による育成セッションが起動します（任意工程）。reviewer が PR レビュー対応時に蓄積した観点を、ユーザーと対話しながら整理し、プロジェクト固有 config（`tech.yml` / `biz.yml`）へ反映します。
 
 各工程で必要な Agent だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `architect` が行い、`/run` (Conductor) がそれに従って Agent を起動します。
 
