@@ -82,4 +82,4 @@ cultivator は **他の Agent を呼び出さない**（独立した役割）。
 |---|---|
 | reviewer | 観点を `review-feedback.yml` に投入する書き手。cultivator はその読み手 |
 | architect / designer / implementer / tester | 将来の `cultivate-*` Skill で観察対象に加わる予定 |
-| Conductor (`run`) | cultivator の起動者。`/cultivate` コマンドまたは PR マージ後の自動起動 |
+| Conductor (`run`) | cultivator の起動者。手動 `/cultivate` コマンドのみ（自動フックは未実装） |

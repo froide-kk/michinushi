@@ -27,7 +27,7 @@ cultivate-review は参照 Skill である。cultivator Agent が呼び出し、
 ```yaml
 schema-version: 1
 observations:
-  - id: <category>-<slug>-<連番>
+  - id: <category>-<slug>-<hash6>
     summary: <観点の内容>
     category: security | type-safety | docs | consistency | perf | test | other
     severity: MUST | SHOULD | NIT
@@ -174,7 +174,7 @@ observation の `category` から **推奨昇格先** を提示しても良い�
 
 schema-version: 1
 items:
-  - id: <category>-<slug>-<連番>      # review-feedback.yml の id と整合させる
+  - id: <category>-<slug>-<hash6>     # review-feedback.yml の id と整合させる
     summary: <観点>
     category: <カテゴリ>
     severity: MUST | SHOULD | NIT
