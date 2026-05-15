@@ -88,12 +88,14 @@ mode:
 | Skill | `triage` | 外部ソースエラー分析 & Issue 化 |
 | Skill | `todo` | タスク一覧の構造化報告 |
 | Skill | `setup` | 初期セットアップ |
+| Skill | `cultivate` | プロジェクト固有 config の育成セッション起動 |
 | Agent | `architect` | 要件分析・影響範囲・実装計画・工程要否判断 |
 | Agent | `designer` | UI レイアウト・UX 設計・インタラクション設計 |
 | Agent | `implementer` | コード実装・設計書更新 |
 | Agent | `tester` | テスト全体の組み立て（unit / e2e / security） |
 | Agent | `reviewer` | コード・設計レビュー（tech / biz 両観点） |
 | Agent | `analyst` | 外部エラーデータの分析（triage から呼び出し） |
+| Agent | `cultivator` | プロジェクト固有 config の育成（メタ Agent、提案のみ） |
 
 各 Agent は `.claude/agents/<name>/AGENT.md` として配置され、Claude Code が自動認識する。
 
@@ -104,6 +106,7 @@ mode:
 - テスト系: `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist`
 - レビュー系: `review-tech-checklist`, `review-biz-checklist`
 - 外部ソース分析系: `analyze-sentry`（将来: `analyze-datadog` 等）
+- 育成系: `cultivate-review`（将来: `cultivate-code`, `cultivate-design` 等）
 
 ## 開発フロー
 
@@ -133,6 +136,11 @@ mode:
 
 ※1 designer は UI/UX 変更を含む場合のみ。architect が判断する。
 ※ 設計書の作成・更新は implementer が `doc-yaml-schema` Skill を使って行う。
+
+**任意工程: Retrospective（育成）**
+
+PR マージ後、または手動で `/cultivate` を実行することで cultivator Agent が起動する。
+PR レビュー対応時に reviewer Agent が `.claude/config/review-feedback.yml` に投入した観点を、ユーザーと対話しながら整理し、`tech.yml` / `biz.yml` 等への昇格を提案する。詳細は `cultivate-review` Skill を参照。
 
 ## 各 Agent の責務と後続への配慮
 
@@ -181,6 +189,20 @@ mode:
 - Reviewer が MUST/SHOULD 指摘を返し、修正が行われた場合、**必ず再レビューを実施する**
 - 再レビューで新たな指摘がなくなるまで「修正 → 再レビュー」のループを繰り返す
 - **MUST 指摘が 0 件になるまでコミットしてはならない**
+
+**学習データの投入**:
+- PR レビュー対応時、Copilot や人間レビュアーから指摘された妥当な観点を `.claude/config/review-feedback.yml` に observation として投入する
+- 後で cultivator Agent が `/cultivate` でこの蓄積を読み、育成判断を行う
+
+### cultivator
+
+**担当**: プロジェクト固有 config（`.claude/config/*.yml`）の育成提案（メタ Agent）
+
+**役割の特徴**:
+- 他の Agent と異なり、**判断を持たない議論パートナー**として振る舞う
+- 他の Agent の出力データ（特に reviewer が投入した observation）を観察し、育成提案だけを行う
+- 実際の昇格（`tech.yml` 更新など）は PR として提案するに留め、マージは人間が行う
+- `/cultivate` コマンドで起動。引数は取らず、蓄積された observation 全件を処理対象とする
 
 ## Conductor の役割
 
