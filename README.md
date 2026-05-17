@@ -69,6 +69,7 @@ Triage → Todo → In Progress → In Review → Done
 ```
 
 ※ designer は UI 変更を含む場合のみ。architect が判断します。
+※ PR マージ後など適切なタイミングで `/cultivate` を **手動実行** すると、**cultivator Agent** による育成セッションが起動します（任意工程、オプトイン）。reviewer が PR レビュー対応時に蓄積した観点を、ユーザーと対話しながら整理し、プロジェクト固有 config（`tech.yml` / `biz.yml`）へ反映します。**デフォルトは無効** で、`/setup` 実行時に有効化を選択するか、`.claude/config/project.yml` の `cultivation.enabled: true` で明示的にオンにします。
 
 各工程で必要な Agent だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `architect` が行い、`/run` (Conductor) がそれに従って Agent を起動します。
 
@@ -139,6 +140,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | **triage** | `/triage` `/triage sentry` | 外部監視サービスのエラー分析 & Issue 化（analyst Agent に委譲） |
 | **todo** | `/todo` | タスク一覧を PM 視点で構造化して報告（GitHub / ローカル両対応） |
 | **setup** | `/setup` `/setup update` | AI 駆動開発の初期セットアップ・michinushi 本体の更新 |
+| **cultivate** | `/cultivate` | プロジェクト固有 config の育成セッション（cultivator Agent に委譲） |
 
 ### Agents (Conductor が状況に応じて委譲)
 
@@ -152,6 +154,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | **tester** | テスト | unit / e2e / security テストを必要に応じて組み立て |
 | **reviewer** | レビュー | tech 観点 + biz 観点を統合したコード・設計レビュー |
 | **analyst** | 分析 | 外部エラーデータの分析（triage から呼び出し） |
+| **cultivator** | 育成 | プロジェクト固有 config の育成提案（メタ Agent、`/cultivate` から起動） |
 
 ### Reference Skills (Agent が必要に応じて参照)
 
@@ -165,6 +168,7 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
 | テスト | `test-design-principles`, `test-vitest`, `test-playwright`, `test-owasp-checklist` | tester |
 | レビュー | `review-tech-checklist`, `review-biz-checklist` | reviewer |
 | 外部ソース分析 | `analyze-sentry` (将来: `analyze-datadog` 等) | analyst |
+| 育成 | `cultivate-review` (将来: `cultivate-code`, `cultivate-design` 等) | cultivator |
 
 ## Architecture
 
@@ -177,12 +181,15 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
     tester/AGENT.md
     reviewer/AGENT.md
     analyst/AGENT.md
+    cultivator/AGENT.md      # 育成メタ Agent
   skills/                    # <-- Michinushi 配布物（Skills）
     process.md               # 開発プロセス定義
     run/SKILL.md             # /run (Conductor)
     triage/SKILL.md          # /triage (外部ソース分析 & Issue 化)
     todo/SKILL.md            # /todo
     setup/SKILL.md           # /setup
+    cultivate/SKILL.md       # /cultivate (育成セッション起動)
+    cultivate-review/SKILL.md # 育成参照 Skill（cultivator が使う）
     design-*/SKILL.md        # 設計参照 Skill
     impl-*/SKILL.md          # 実装参照 Skill
     test-*/SKILL.md          # テスト参照 Skill
@@ -191,11 +198,12 @@ gh auth refresh -h github.com -s repo,read:project,project,read:org
     doc-yaml-schema/         # 設計書スキーマ + 生成手順
   config/                    # Project-specific settings (NOT included)
     project.yml              # 管理モード・連携情報
-    tech.yml                 # 技術レビューチェック項目
-    biz.yml                  # 業務レビューチェック項目
+    tech.yml                 # 技術レビューチェック項目（cultivator が育てる）
+    biz.yml                  # 業務レビューチェック項目（cultivator が育てる）
     security.yml             # セキュリティテストチェック項目
     ui.yml                   # UI方針
     design.yml               # 設計書規約
+    review-feedback.yml      # 未処理 observation の蓄積（reviewer が投入、cultivator が読む）
 ```
 
 ### Skill vs Agent
@@ -219,12 +227,13 @@ Skills/Agents はどのプロジェクトでも使える汎用的な指示を記
 
 | File | Used by | Description |
 |------|---------|-------------|
-| `project.yml` | run, todo, setup, triage | 管理モード・連携情報・外部ソース設定（必須） |
-| `tech.yml` | reviewer Agent | 技術レビューのチェック項目 |
-| `biz.yml` | reviewer Agent | 業務レビューのチェック項目 |
+| `project.yml` | run, todo, setup, triage, cultivator | 管理モード・連携情報・外部ソース設定（必須）・`cultivation.enabled` で育成機能の On/Off |
+| `tech.yml` | reviewer Agent | 技術レビューのチェック項目（cultivator が育てる） |
+| `biz.yml` | reviewer Agent | 業務レビューのチェック項目（cultivator が育てる） |
 | `security.yml` | tester Agent | セキュリティテストのチェック項目 |
 | `ui.yml` | designer Agent | UI 方針・デザインシステム設定 |
 | `design.yml` | architect / implementer Agent | 設計書規約・スキーマ参照先 |
+| `review-feedback.yml` | reviewer (投入), cultivator (読み取り) | PR レビュー対応で蓄積された未処理 observation（`cultivation.enabled: true` の場合のみ生成）。`/cultivate` で処理 |
 
 ## Creating a New Skill or Agent
 
