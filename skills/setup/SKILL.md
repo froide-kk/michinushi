@@ -66,6 +66,42 @@ disable-model-invocation: true
 - Git リポジトリ + `gh` 未インストールまたは認証失敗 → 2 を推奨
 - Git リポジトリでない → 3 を推奨
 
+## Step 1.6: 育成機能 (cultivator) の有効化確認
+
+`.claude/config/project.yml` に `cultivation.enabled` が未定義の場合のみ確認する。既に定義済みならスキップ。
+
+以下を提示し選択してもらう:
+
+```
+🌱 育成機能 (cultivator) を有効にしますか?
+
+reviewer Agent が PR レビュー対応時に蓄積した観点を、
+PM が定期的に `/cultivate` で整理し、プロジェクト固有のレビュー観点
+（tech.yml / biz.yml 等）を育てていく機能です。
+
+  1. 有効化 — reviewer が observation を投入、`/cultivate` で育成セッションが起動
+  2. 無効化（推奨デフォルト）— 後で project.yml を編集して有効化可能
+
+無効を選んでも、コア機能（/run / /triage / /todo / /setup）は通常通り使えます。
+育成機能は完全にオプションです。
+```
+
+選択に応じて `project.yml` に以下を書き込む:
+
+| 選択 | `cultivation.enabled` |
+|---|---|
+| 1 | `true` |
+| 2 | `false` |
+
+書き込み例:
+
+```yaml
+cultivation:
+  enabled: false  # または true
+```
+
+> 既に `project.yml` に他のセクション（`mode` 等）がある場合は、それと並列に追記する。
+
 ## Step 2: 状況判定と提案
 
 **既存リポジトリの場合**（commit数 > 0 かつ CLAUDE.md あり）:

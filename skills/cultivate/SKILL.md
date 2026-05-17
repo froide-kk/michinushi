@@ -19,6 +19,25 @@ disable-model-invocation: true
 
 ### Step 1: 前提確認
 
+#### Step 1-1: 育成機能の有効化チェック
+
+`.claude/config/project.yml` の `cultivation.enabled` を確認する。
+
+- `false` または **未定義** → 以下のメッセージを表示して終了:
+  ```
+  ⚠ 育成機能は本プロジェクトでは無効です。
+
+  有効化するには `.claude/config/project.yml` に以下を追加してください:
+
+    cultivation:
+      enabled: true
+
+  または `/setup` を再実行すると対話的に有効化できます。
+  ```
+- `true` → Step 1-2 へ
+
+#### Step 1-2: 蓄積データの確認
+
 `.claude/config/review-feedback.yml` の存在を確認する。
 
 - ファイルが存在しない、または `observations` が空 → 「現在育成対象の observation はありません」と報告して終了

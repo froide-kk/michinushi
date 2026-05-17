@@ -69,7 +69,7 @@ Triage → Todo → In Progress → In Review → Done
 ```
 
 ※ designer は UI 変更を含む場合のみ。architect が判断します。
-※ PR マージ後など適切なタイミングで `/cultivate` を **手動実行** すると、**cultivator Agent** による育成セッションが起動します（任意工程）。reviewer が PR レビュー対応時に蓄積した観点を、ユーザーと対話しながら整理し、プロジェクト固有 config（`tech.yml` / `biz.yml`）へ反映します。
+※ PR マージ後など適切なタイミングで `/cultivate` を **手動実行** すると、**cultivator Agent** による育成セッションが起動します（任意工程、オプトイン）。reviewer が PR レビュー対応時に蓄積した観点を、ユーザーと対話しながら整理し、プロジェクト固有 config（`tech.yml` / `biz.yml`）へ反映します。**デフォルトは無効** で、`/setup` 実行時に有効化を選択するか、`.claude/config/project.yml` の `cultivation.enabled: true` で明示的にオンにします。
 
 各工程で必要な Agent だけが呼び出されます。バグ修正なら設計工程はスキップ、リファクタリングなら設計書更新は不要、といった判断を `architect` が行い、`/run` (Conductor) がそれに従って Agent を起動します。
 
@@ -227,13 +227,13 @@ Skills/Agents はどのプロジェクトでも使える汎用的な指示を記
 
 | File | Used by | Description |
 |------|---------|-------------|
-| `project.yml` | run, todo, setup, triage | 管理モード・連携情報・外部ソース設定（必須） |
+| `project.yml` | run, todo, setup, triage, cultivator | 管理モード・連携情報・外部ソース設定（必須）・`cultivation.enabled` で育成機能の On/Off |
 | `tech.yml` | reviewer Agent | 技術レビューのチェック項目（cultivator が育てる） |
 | `biz.yml` | reviewer Agent | 業務レビューのチェック項目（cultivator が育てる） |
 | `security.yml` | tester Agent | セキュリティテストのチェック項目 |
 | `ui.yml` | designer Agent | UI 方針・デザインシステム設定 |
 | `design.yml` | architect / implementer Agent | 設計書規約・スキーマ参照先 |
-| `review-feedback.yml` | reviewer (投入), cultivator (読み取り) | PR レビュー対応で蓄積された未処理 observation。`/cultivate` で処理 |
+| `review-feedback.yml` | reviewer (投入), cultivator (読み取り) | PR レビュー対応で蓄積された未処理 observation（`cultivation.enabled: true` の場合のみ生成）。`/cultivate` で処理 |
 
 ## Creating a New Skill or Agent
 

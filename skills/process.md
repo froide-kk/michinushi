@@ -137,10 +137,12 @@ mode:
 ※1 designer は UI/UX 変更を含む場合のみ。architect が判断する。
 ※ 設計書の作成・更新は implementer が `doc-yaml-schema` Skill を使って行う。
 
-**任意工程: Retrospective（育成）**
+**任意工程: Retrospective（育成、オプトイン）**
 
 PR マージ後など、適切なタイミングで **手動で `/cultivate` を実行** することで cultivator Agent が起動する。
 PR レビュー対応時に reviewer Agent が `.claude/config/review-feedback.yml` に投入した観点を、ユーザーと対話しながら整理し、`tech.yml` / `biz.yml` 等への昇格を提案する。詳細は `cultivate-review` Skill を参照。
+
+> **デフォルト無効（オプトイン）**: 育成機能は `.claude/config/project.yml` の `cultivation.enabled: true` で明示的に有効化したプロジェクトでのみ動作する。未設定（または `false`）の場合、reviewer は observation を投入せず、`/cultivate` は「育成機能は無効」と案内して終了する。`/setup` 初回実行時に有効化を選択できる。
 
 > 現時点では Conductor (`run` Skill) に PR マージ後の自動フックは無く、`/cultivate` は手動コマンドのみ。将来的に Conductor のフロー末尾に自動起動を組み込むかは別途検討する。
 
@@ -192,8 +194,9 @@ PR レビュー対応時に reviewer Agent が `.claude/config/review-feedback.y
 - 再レビューで新たな指摘がなくなるまで「修正 → 再レビュー」のループを繰り返す
 - **MUST 指摘が 0 件になるまでコミットしてはならない**
 
-**学習データの投入**:
-- PR レビュー対応時、Copilot や人間レビュアーから指摘された妥当な観点を `.claude/config/review-feedback.yml` に observation として投入する
+**学習データの投入（育成機能が有効な場合のみ）**:
+- `.claude/config/project.yml` の `cultivation.enabled: true` のときに限り、PR レビュー対応時に Copilot や人間レビュアーから指摘された妥当な観点を `.claude/config/review-feedback.yml` に observation として投入する
+- `cultivation.enabled` が `false` または未定義のプロジェクトでは observation を投入しない（育成機能はオプトイン）
 - 後で cultivator Agent が `/cultivate` でこの蓄積を読み、育成判断を行う
 
 ### cultivator
@@ -205,6 +208,7 @@ PR レビュー対応時に reviewer Agent が `.claude/config/review-feedback.y
 - 他の Agent の出力データ（特に reviewer が投入した observation）を観察し、育成提案だけを行う
 - 実際の昇格（`tech.yml` 更新など）は PR として提案するに留め、マージは人間が行う
 - `/cultivate` コマンドで起動。引数は取らず、蓄積された observation 全件を処理対象とする
+- **`.claude/config/project.yml` の `cultivation.enabled: true` のときのみ動作**（デフォルト無効のオプトイン）
 
 ## Conductor の役割
 
